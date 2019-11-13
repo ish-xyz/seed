@@ -1,4 +1,5 @@
 evaluate('new File("modules/Commons.groovy")')
+
 class JobConfig implements Serializable {
     def URL
     //non-existing branches
@@ -309,7 +310,7 @@ def generateStandaloneJobConfigs(String repoName, JobConfig repoConfig, def dslS
 
 
 @NonCPS
-def generatePerformanceJobConfigs(def dslPerformanceTemplate, def jobConfig, JOB_TYPES jobType) {
+def generatePerformanceJobConfigs(def dslPerformanceTemplate, def jobConfig, Commons.JOB_TYPES jobType) {
     return getJobForConfig(dslPerformanceTemplate, jobConfig, jobType).replace("..", ".")
 }
 
