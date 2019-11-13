@@ -315,6 +315,7 @@ def generatePerformanceJobConfigs(def dslPerformanceTemplate, def jobConfig, JOB
 node() {
 
     def utils = null
+    def job = null
     def dslScriptTemplate2 = ''
     def jobConfigs = []
     def configBaseFolder = 'config/projects'
@@ -342,6 +343,7 @@ node() {
     }
     stage('init modules') {
         utils = load "modules/utils.groovy"
+        job = load "modules/job.groovy"
     }
     stage('Read templates') {
         dslScriptTemplate2 = utils.readTemplate('templates/dslScriptTemplate.txt')
