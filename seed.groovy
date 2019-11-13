@@ -338,11 +338,6 @@ node() {
         writeFile(file: 'folderStructure.groovy', text: folderDsl)
         jobDsl failOnMissingPlugin: true, unstableOnDeprecation: true, targets: 'folderStructure.groovy'
     }
-    stage('Checkout Self') {
-        git branch: 'master',
-                credentialsId: "",
-                url: "https://github.com/gabrielstar/seed.git"
-    }
     stage('Load libs'){
         library(
                 identifier: 'commons',
@@ -354,6 +349,12 @@ node() {
                 )
         )
     }
+    stage('Checkout Self') {
+        git branch: 'master',
+                credentialsId: "",
+                url: "https://github.com/gabrielstar/seed.git"
+    }
+
     stage('init modules') {
         utils = load "modules/utils.groovy"
         job = load "modules/job.groovy"
