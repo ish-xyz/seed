@@ -343,6 +343,17 @@ node() {
                 credentialsId: "",
                 url: "https://github.com/gabrielstar/seed.git"
     }
+    stage('Load libs'){
+        library(
+                identifier: 'commons',
+                retriever: modernSCM(
+                        [
+                                $class: 'GitSCMSource',
+                                remote: 'https://github.com/gabrielstar/seed.git'
+                        ]
+                )
+        )
+    }
     stage('init modules') {
         utils = load "modules/utils.groovy"
         job = load "modules/job.groovy"
