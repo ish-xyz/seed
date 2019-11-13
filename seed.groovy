@@ -9,6 +9,8 @@ commons = library(
 )
 import org.gabrielstar.commons.*
 
+
+
 class JobConfig implements Serializable {
     def URL
     //non-existing branches

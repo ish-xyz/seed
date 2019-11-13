@@ -1,7 +1,6 @@
 package org.gabrielstar.commons
 
-class Commons {
-    public static enum JOB_TYPES {
+public enum JOB_TYPES {
         FEATURE("feature"), REGRESSION("regression"), STANDALONE("standalone"), PIPELINE("pipeline"),
         PERFORMANCE("performance"), PERFORMANCE_REGRESSION("performance/regression"), PERFORMANCE_FEATURE("performance/feature"),
         SELENIUM("selenium")
@@ -20,5 +19,3 @@ class Commons {
             return this.name
         }
     }
-
-}
