@@ -1,12 +1,11 @@
-commons = library(
-        identifier: 'seed@master',
+library identifier: 'seed@master',
         retriever: modernSCM(
                 [
                         $class: 'GitSCMSource',
                         remote: 'https://github.com/gabrielstar/sesed.git'
                 ]
         )
-)
+
 import org.gabrielstar.commons.JOB_TYPES
 
 
