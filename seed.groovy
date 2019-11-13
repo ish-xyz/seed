@@ -336,10 +336,10 @@ node() {
         writeFile(file: 'folderStructure.groovy', text: folderDsl)
         jobDsl failOnMissingPlugin: true, unstableOnDeprecation: true, targets: 'folderStructure.groovy'
     }
-    stage('Checkout') {
-        git branch: 'yamlization',
-                credentialsId: credentialsId,
-                url: "${serviceRoot}/gitlab/TestTools/Seed.git"
+    stage('Checkout Self') {
+        git branch: 'master',
+                credentialsId: "",
+                url: "https://github.com/gabrielstar/seed.git"
     }
     stage('init modules') {
         utils = load "modules/utils.groovy"
