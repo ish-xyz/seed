@@ -1,5 +1,4 @@
 commons = library(
-        identifier: 'commons@master',
         retriever: modernSCM(
                 [
                         $class: 'GitSCMSource',
