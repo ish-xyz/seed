@@ -1,5 +1,4 @@
-public class Commons {
-    public enum JOB_TYPES {
+ public enum JOB_TYPES {
         FEATURE("feature"), REGRESSION("regression"), STANDALONE("standalone"), PIPELINE("pipeline"),
         PERFORMANCE("performance"), PERFORMANCE_REGRESSION("performance/regression"), PERFORMANCE_FEATURE("performance/feature"),
         SELENIUM("selenium")
@@ -18,4 +17,3 @@ public class Commons {
             return this.name
         }
     }
-}
