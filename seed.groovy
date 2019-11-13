@@ -1,5 +1,5 @@
-library(
-        identifier: 'commons',
+commons = library(
+        identifier: 'commons@master',
         retriever: modernSCM(
                 [
                         $class: 'GitSCMSource',
@@ -7,6 +7,7 @@ library(
                 ]
         )
 )
+import org.gabrielstar.commons.*
 
 class JobConfig implements Serializable {
     def URL
@@ -346,7 +347,7 @@ node() {
         writeFile(file: 'folderStructure.groovy', text: folderDsl)
         jobDsl failOnMissingPlugin: true, unstableOnDeprecation: true, targets: 'folderStructure.groovy'
     }
-    stage('Load libs'){
+    stage('Load libs') {
 
     }
     stage('Checkout Self') {
