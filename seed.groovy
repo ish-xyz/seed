@@ -97,7 +97,7 @@ String view = '''
             }
         }
         '''
-/*
+
 //performance feature & tests put inside because number of jobs per view grew too large
 public enum JOB_TYPES {
     FEATURE("feature"), REGRESSION("regression"), STANDALONE("standalone"), PIPELINE("pipeline"),
@@ -118,7 +118,7 @@ public enum JOB_TYPES {
         return this.name
     }
 }
-*/
+
 //envs and envs templates for where they are dynamically generated
 public enum ENVIRONMENTS {
     DEV("DEV__ENV__01"), DEV2("DEV__ENV__02"), PINT1("PINT1"), PINT2("PINT2")
@@ -144,6 +144,151 @@ def dslScripts = []
 def credentialsId = 'CORP-TU'
 String serviceRoot = 'https://zensus-pl.corp.capgemini.com'
 
+
+
+node() {
+
+    def utils = null
+    def job = null
+    def dslScriptTemplate2 = ''
+    def jobConfigs = []
+    def configBaseFolder = 'config/projects'
+
+    stage("Prepare WS") {
+        cleanWs()
+        env.WORKSPACE_LOCAL = sh(returnStdout: true, script: 'pwd').trim()
+        echo "Workspace set to:" + env.WORKSPACE_LOCAL
+    }
+    stage("Create Folder Structure") {
+        String folderDsl
+        List folders = []
+        folders.add(folderSource.replaceAll(':folder:', "tests_y"))
+        JOB_TYPES.each {
+            folders.add(folderSource.replaceAll(':folder:', it.folder))
+        }
+        folderDsl = folders.join("\n")
+        writeFile(file: 'folderStructure.groovy', text: folderDsl)
+        jobDsl failOnMissingPlugin: true, unstableOnDeprecation: true, targets: 'folderStructure.groovy'
+    }
+    stage('Load libs') {
+
+    }
+    stage('Checkout Self') {
+        git branch: 'master',
+                credentialsId: "",
+                url: "https://github.com/gabrielstar/seed.git"
+    }
+
+    stage('init modules') {
+        utils = load "modules/utils.groovy"
+        job = load "modules/job.groovy"
+    }
+    stage('Read templates') {
+        dslScriptTemplate2 = utils.readTemplate('templates/dslScriptTemplate.txt')
+        echo "$dslScriptTemplate2"
+    }
+    stage('Read YAML files') {
+        def configFiles = utils.getConfigsPaths()
+        for (def configFile : configFiles) {
+            echo " %% READING CONFIG FILE: ${configFile} %%"
+            def jobConfig = readYaml(file: "${configFile}")
+            jobConfigs << jobConfig
+            utils.printYAML(jobConfig)
+
+        }
+    }
+    stage('Prepare Performance Job Configurations') {
+        for (jobConfig in jobConfigs) {
+            if (jobConfig.job.type == JOB_TYPES.PERFORMANCE.toString()) {
+                echo "Building ${JOB_TYPES.PERFORMANCE} job config for ${jobConfig.job.jobName}"
+                if (jobConfig.job.regression.enabled as boolean) {
+                    dslScripts << generatePerformanceJobConfigs(dslScriptTemplate2, jobConfig, JOB_TYPES.PERFORMANCE_REGRESSION)
+                }
+                if (jobConfig.job.feature.enabled as boolean) {
+                    dslScripts << generatePerformanceJobConfigs(dslScriptTemplate2, jobConfig, JOB_TYPES.PERFORMANCE_FEATURE)
+                }
+                echo "Excluded branches: " + jobConfig.job.feature.excludedBranches
+            } else
+                echo "Not a performance job: ${jobConfig.job.jobName}, ${JOB_TYPES.PERFORMANCE}"
+        }
+    }
+/*
+stage('Prepare Job Configurations') {
+    repoJobConfigs.each { String repoName, JobConfig repoConfig ->
+        echo "Generating functional tests feature jobs configs: "
+        //feature jobs for all branches, with default environment, testers can change
+        dslScripts += (generateFeatureJobConfigs(repoName, repoConfig, dslScriptTemplate.txt, browsers))
+
+        echo "Generating functional tests regression jobs configs: "
+        dslScripts += (generateRegressionJobConfigs(repoName, repoConfig, dslScriptTemplate.txt, browsers, ENVIRONMENTS, excludedEnvironmentsForRegression))
+
+        echo "Generating integrated test pipeline jobs configs"
+        dslScripts += (generateTestPipelinesJobConfigs(
+                repoName,
+                repoConfig,
+                dslTestPipelineTemplate,
+                dslScriptTemplate.txt,
+                pipelineBrowsers,
+                ENVIRONMENTS,
+                excludedEnvironmentsForRegression
+        ))
+
+        echo "Generating standalone jobs configs"
+        //stand-alone jobs
+        dslScripts += (generateStandaloneJobConfigs(repoName, repoConfig, dslScriptPipelineTemplate))
+
+        echo "Generating performance jobs configs"
+        //stand-alone jobs
+        dslScripts += (generatePerformanceJobConfigs(repoName, repoConfig, dslScriptTemplate.txt, excludedEnvironmentsForRegression))
+
+    }
+
+}
+stage('Prepare custom Views') {
+    echo "Preparing custom views"
+    //project views
+    repoJobConfigs.each {
+        name, content ->
+            dslScripts.add(view.
+                    replaceAll(':name:', "2. ${name}").
+                    replaceAll(':regex:', name)
+            )
+    }
+    //regressions
+    dslScripts.add(view.
+            replaceAll(':name:', '0. regressions').
+            replaceAll(':regex:', 'regression')
+    )
+    //unstable
+    dslScripts.add(view.
+            replaceAll(':name:', '1. unstable').
+            replaceAll(':regex:', '.*')
+    )
+    //browsers
+    browsers.each {
+        browser ->
+            dslScripts.add(view.
+                    replaceAll(':name:', "3. ${browser}").
+                    replaceAll(':regex:', browser)
+            )
+    }
+}*/
+    stage('Create Jobs & Views') {
+        echo "Creating jobs and views"
+        if (dslScripts.size() > 0) {
+            String dslOutput = dslScripts.join("\n")
+            echo "Script source to execute:"
+            echo dslOutput
+            writeFile(file: 'dslOutput.groovy', text: dslOutput)
+            jobDsl failOnMissingPlugin: true, unstableOnDeprecation: true, targets: 'dslOutput.groovy'
+        }
+    }
+
+
+}
+
+
+//######################
 @NonCPS
 def getRegressionJobFor(String projectName, String browser, String env, String branch, boolean isPerformance) {
     def jobRelativePath
@@ -323,148 +468,5 @@ def generateStandaloneJobConfigs(String repoName, JobConfig repoConfig, def dslS
 def generatePerformanceJobConfigs(def dslPerformanceTemplate, def jobConfig, JOB_TYPES jobType) {
     return getJobForConfig(dslPerformanceTemplate, jobConfig, jobType).replace("..", ".")
 }
-
-node() {
-
-    def utils = null
-    def job = null
-    def dslScriptTemplate2 = ''
-    def jobConfigs = []
-    def configBaseFolder = 'config/projects'
-
-    stage("Prepare WS") {
-        cleanWs()
-        env.WORKSPACE_LOCAL = sh(returnStdout: true, script: 'pwd').trim()
-        echo "Workspace set to:" + env.WORKSPACE_LOCAL
-    }
-    stage("Create Folder Structure") {
-        String folderDsl
-        List folders = []
-        folders.add(folderSource.replaceAll(':folder:', "tests_y"))
-        JOB_TYPES.each {
-            folders.add(folderSource.replaceAll(':folder:', it.folder))
-        }
-        folderDsl = folders.join("\n")
-        writeFile(file: 'folderStructure.groovy', text: folderDsl)
-        jobDsl failOnMissingPlugin: true, unstableOnDeprecation: true, targets: 'folderStructure.groovy'
-    }
-    stage('Load libs') {
-
-    }
-    stage('Checkout Self') {
-        git branch: 'master',
-                credentialsId: "",
-                url: "https://github.com/gabrielstar/seed.git"
-    }
-
-    stage('init modules') {
-        utils = load "modules/utils.groovy"
-        job = load "modules/job.groovy"
-    }
-    stage('Read templates') {
-        dslScriptTemplate2 = utils.readTemplate('templates/dslScriptTemplate.txt')
-        echo "$dslScriptTemplate2"
-    }
-    stage('Read YAML files') {
-        def configFiles = utils.getConfigsPaths()
-        for (def configFile : configFiles) {
-            echo " %% READING CONFIG FILE: ${configFile} %%"
-            def jobConfig = readYaml(file: "${configFile}")
-            jobConfigs << jobConfig
-            utils.printYAML(jobConfig)
-
-        }
-    }
-    stage('Prepare Performance Job Configurations') {
-        for (jobConfig in jobConfigs) {
-            if (jobConfig.job.type == JOB_TYPES.PERFORMANCE.toString()) {
-                echo "Building ${JOB_TYPES.PERFORMANCE} job config for ${jobConfig.job.jobName}"
-                if (jobConfig.job.regression.enabled as boolean) {
-                    dslScripts << generatePerformanceJobConfigs(dslScriptTemplate2, jobConfig, JOB_TYPES.PERFORMANCE_REGRESSION)
-                }
-                if (jobConfig.job.feature.enabled as boolean) {
-                    dslScripts << generatePerformanceJobConfigs(dslScriptTemplate2, jobConfig, JOB_TYPES.PERFORMANCE_FEATURE)
-                }
-                echo "Excluded branches: " + jobConfig.job.feature.excludedBranches
-            } else
-                echo "Not a performance job: ${jobConfig.job.jobName}, ${JOB_TYPES.PERFORMANCE}"
-        }
-    }
-/*
-stage('Prepare Job Configurations') {
-    repoJobConfigs.each { String repoName, JobConfig repoConfig ->
-        echo "Generating functional tests feature jobs configs: "
-        //feature jobs for all branches, with default environment, testers can change
-        dslScripts += (generateFeatureJobConfigs(repoName, repoConfig, dslScriptTemplate.txt, browsers))
-
-        echo "Generating functional tests regression jobs configs: "
-        dslScripts += (generateRegressionJobConfigs(repoName, repoConfig, dslScriptTemplate.txt, browsers, ENVIRONMENTS, excludedEnvironmentsForRegression))
-
-        echo "Generating integrated test pipeline jobs configs"
-        dslScripts += (generateTestPipelinesJobConfigs(
-                repoName,
-                repoConfig,
-                dslTestPipelineTemplate,
-                dslScriptTemplate.txt,
-                pipelineBrowsers,
-                ENVIRONMENTS,
-                excludedEnvironmentsForRegression
-        ))
-
-        echo "Generating standalone jobs configs"
-        //stand-alone jobs
-        dslScripts += (generateStandaloneJobConfigs(repoName, repoConfig, dslScriptPipelineTemplate))
-
-        echo "Generating performance jobs configs"
-        //stand-alone jobs
-        dslScripts += (generatePerformanceJobConfigs(repoName, repoConfig, dslScriptTemplate.txt, excludedEnvironmentsForRegression))
-
-    }
-
-}
-stage('Prepare custom Views') {
-    echo "Preparing custom views"
-    //project views
-    repoJobConfigs.each {
-        name, content ->
-            dslScripts.add(view.
-                    replaceAll(':name:', "2. ${name}").
-                    replaceAll(':regex:', name)
-            )
-    }
-    //regressions
-    dslScripts.add(view.
-            replaceAll(':name:', '0. regressions').
-            replaceAll(':regex:', 'regression')
-    )
-    //unstable
-    dslScripts.add(view.
-            replaceAll(':name:', '1. unstable').
-            replaceAll(':regex:', '.*')
-    )
-    //browsers
-    browsers.each {
-        browser ->
-            dslScripts.add(view.
-                    replaceAll(':name:', "3. ${browser}").
-                    replaceAll(':regex:', browser)
-            )
-    }
-}*/
-    stage('Create Jobs & Views') {
-        echo "Creating jobs and views"
-        if (dslScripts.size() > 0) {
-            String dslOutput = dslScripts.join("\n")
-            echo "Script source to execute:"
-            echo dslOutput
-            writeFile(file: 'dslOutput.groovy', text: dslOutput)
-            jobDsl failOnMissingPlugin: true, unstableOnDeprecation: true, targets: 'dslOutput.groovy'
-        }
-    }
-
-
-}
-
-
 
 return this
