@@ -1,4 +1,12 @@
-evaluate('new File("modules/Commons.groovy")')
+library(
+        identifier: 'commons',
+        retriever: modernSCM(
+                [
+                        $class: 'GitSCMSource',
+                        remote: 'https://github.com/gabrielstar/seed.git'
+                ]
+        )
+)
 
 class JobConfig implements Serializable {
     def URL
@@ -339,15 +347,7 @@ node() {
         jobDsl failOnMissingPlugin: true, unstableOnDeprecation: true, targets: 'folderStructure.groovy'
     }
     stage('Load libs'){
-        library(
-                identifier: 'commons',
-                retriever: modernSCM(
-                        [
-                                $class: 'GitSCMSource',
-                                remote: 'https://github.com/gabrielstar/seed.git'
-                        ]
-                )
-        )
+
     }
     stage('Checkout Self') {
         git branch: 'master',
