@@ -158,18 +158,14 @@ node() {
         writeFile(file: 'folderStructure.groovy', text: folderDsl)
         jobDsl failOnMissingPlugin: true, unstableOnDeprecation: true, targets: 'folderStructure.groovy'
     }
-    stage('Load libs') {
 
-    }
     stage('Checkout Self') {
         git branch: 'master',
                 credentialsId: "",
                 url: "https://github.com/gabrielstar/seed.git"
     }
-
     stage('init modules') {
         utils = load "modules/utils.groovy"
-        job = load "modules/job.groovy"
     }
     stage('Read templates') {
         dslScriptTemplate2 = utils.readTemplate('templates/dslScriptTemplate.txt')
