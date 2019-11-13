@@ -1,0 +1,27 @@
+job:
+  url: 'https://zensus-pl.corp.capgemini.com/gitlab/TestTools/ZENSUSTEMPLATE_JMETER.git'
+  jobName: 'MR2019'
+  description: 'Description of the job'
+  scriptPath: 'Jenkinsfile'
+  credentialsId: 'CORP-TU'
+  enabled: true
+  type: 'performance'
+  environment: 'DEV1'
+  regression:
+    branches:
+      includes: '*develop'
+      excludes: 'foo'
+    enabled: true
+    trigger: 'periodic(120)'
+  feature:
+    branches:
+      includes: '*'
+      excludes: 'master'
+    enabled: false
+    trigger: 'periodic(15)'
+  orphanedOldItemsNumKeep: 3
+  orphanedOldItemsDaysKeep: 1
+  oldItemsNumKeep: 10
+  oldItemsDaysKeep: 10
+  oldArtifactsNumKeep: 10
+  oldArtifactsDaysKeep: 10

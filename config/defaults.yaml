@@ -1,0 +1,13 @@
+job:
+  url: ''
+  jobName: 'mr'
+  scriptPath: ''
+  credentialsId:
+  enabled: true
+  type: 'selenium'
+  orphanedOldItemsNumKeep: 3
+  orphanedOldItemsDaysKeep: 1
+  oldItemsNumKeep: 10
+  oldItemsDaysKeep: 10
+  oldArtifactsNumKeep: 10
+  oldArtifactsDaysKeep: 10
