@@ -3,7 +3,7 @@ commons = library(
         retriever: modernSCM(
                 [
                         $class: 'GitSCMSource',
-                        remote: 'https://github.com/gabrielstar/seed.git'
+                        remote: 'https://github.com/gabrielstar/sesed.git'
                 ]
         )
 )
