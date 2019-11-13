@@ -85,7 +85,7 @@ String view = '''
             }
         }
         '''
-
+/*
 //performance feature & tests put inside because number of jobs per view grew too large
 public enum JOB_TYPES {
     FEATURE("feature"), REGRESSION("regression"), STANDALONE("standalone"), PIPELINE("pipeline"),
@@ -106,7 +106,7 @@ public enum JOB_TYPES {
         return this.name
     }
 }
-
+*/
 //envs and envs templates for where they are dynamically generated
 public enum ENVIRONMENTS {
     DEV("DEV__ENV__01"), DEV2("DEV__ENV__02"), PINT1("PINT1"), PINT2("PINT2")
