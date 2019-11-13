@@ -1,4 +1,5 @@
 commons = library(
+        identifier: 'commons@master',
         retriever: modernSCM(
                 [
                         $class: 'GitSCMSource',
@@ -6,7 +7,7 @@ commons = library(
                 ]
         )
 )
-import org.gabrielstar.commons.*
+import org.gabrielstar.commons.JOB_TYPES
 
 
 
