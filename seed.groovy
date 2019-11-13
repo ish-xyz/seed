@@ -1,3 +1,4 @@
+evaluate('new File("modules/Commons.groovy")')
 class JobConfig implements Serializable {
     def URL
     //non-existing branches
