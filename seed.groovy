@@ -1,15 +1,3 @@
-library identifier: 'seed@master',
-        retriever: modernSCM(
-                [
-                        $class: 'GitSCMSource',
-                        remote: 'https://github.com/gabrielstar/sesed.git'
-                ]
-        )
-
-import org.gabrielstar.commons.JOB_TYPES
-
-
-
 class JobConfig implements Serializable {
     def URL
     //non-existing branches
@@ -288,7 +276,7 @@ stage('Prepare custom Views') {
 }
 
 
-//######################
+//###################### END ############################
 @NonCPS
 def getRegressionJobFor(String projectName, String browser, String env, String branch, boolean isPerformance) {
     def jobRelativePath
