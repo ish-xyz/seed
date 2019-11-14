@@ -122,7 +122,7 @@ node() {
             if (jobConfig.job.type == JOB_TYPES.SELENIUM.toString()) {
                 echo "Building ${JOB_TYPES.SELENIUM} job config for ${jobConfig.job.jobName}"
                 if (jobConfig.job.regression.enabled as boolean) {
-                    dslScripts << generateSeleniumJobConfigs(multibranchPipelineTemplate, jobConfig, JOB_TYPES.SELENIUM_REGRESSION)
+                    dslScripts << generateSeleniumJobConfigs(multibranchPipelineTemplate, jobConfig, JOB_TYPES.SELENIUM_REGRESSION, browsers)
                 }
                 if (jobConfig.job.feature.enabled as boolean) {
                     dslScripts << generateSeleniumJobConfigs(multibranchPipelineTemplate, jobConfig, JOB_TYPES.SELENIUM_FEATURE)
@@ -226,7 +226,6 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
     switch (jobType) {
         case JOB_TYPES.SELENIUM_REGRESSION:
         case JOB_TYPES.SELENIUM_FEATURE:
-            browser = jobConfig.job?.selenium?.browser ?: ""
         case JOB_TYPES.PERFORMANCE_FEATURE:
         case JOB_TYPES.PERFORMANCE_REGRESSION:
         case JOB_TYPES.PIPELINE:
@@ -254,8 +253,9 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
             replaceAll(':includes:', includes).
             replaceAll(':excludes:', excludes).
             replaceAll(':trigger:', trigger).
-            replaceAll(':browser:', browser).
-            replaceAll(':env:', jobConfig.job.environment)
+            replaceAll(':browser:', jobConfig?.job?.browser).
+            replaceAll(':env:', jobConfig.job.environment).
+            replaceAll("..", ".") //remove empty replacements
 }
 
 @NonCPS
@@ -264,15 +264,6 @@ String replaceVariablesForEnvironments(String env, String projectKey) {
 }
 
 Map<String, JobConfig> repoJobConfigs = [:]
-
-repoJobConfigs.put('MR2019',
-        new JobConfig(
-                URL: "${serviceRoot}/gitlab/mr2019/ZENSUS-E2E.git",
-                jobName: 'MR2019',
-                credentialsId: credentialsId,
-                scriptPath: 'saps-under-test/pipelines/CI/Jenkinsfile_node.groovy'
-        )
-)
 
 //generates functional feature jobs for all branches, with default environment, testers can change
 @NonCPS
@@ -351,7 +342,7 @@ def generateStandaloneJobConfigs(String repoName, JobConfig repoConfig, def dslS
 
 @NonCPS
 def generatePerformanceJobConfigs(def dslPerformanceTemplate, def jobConfig, JOB_TYPES jobType) {
-    return getJobForConfig(dslPerformanceTemplate, jobConfig, jobType).replace("..", ".")
+    return getJobForConfig(dslPerformanceTemplate, jobConfig, jobType)
 }
 
 @NonCPS

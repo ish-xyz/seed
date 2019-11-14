@@ -11,3 +11,4 @@ job:
   oldItemsDaysKeep: 10
   oldArtifactsNumKeep: 10
   oldArtifactsDaysKeep: 10
+  browser: safari

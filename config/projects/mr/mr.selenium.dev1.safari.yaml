@@ -17,7 +17,7 @@ job:
     branches:
       includes: '*'
       excludes: 'master'
-    enabled: false
+    enabled: true
     trigger: 'periodic(15)'
   orphanedOldItemsNumKeep: 3
   orphanedOldItemsDaysKeep: 1
@@ -25,3 +25,4 @@ job:
   oldItemsDaysKeep: 10
   oldArtifactsNumKeep: 10
   oldArtifactsDaysKeep: 10
+  browser: safari
