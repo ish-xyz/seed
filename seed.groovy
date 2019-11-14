@@ -74,7 +74,7 @@ node() {
     def dslScriptTemplate, view, dslScriptPipelineTemplate, folderSource = ''
     def jobConfigs = []
     def configBaseFolder = 'config/projects'
-    List browsers = []
+    def browsers = []
 
     stage("Prepare WS") {
         cleanWs()
@@ -197,7 +197,7 @@ stage('Prepare Job Configurations') {
                         replaceAll(':regex:', browser)
                 )
         }
-        
+
     }
     stage('Create Jobs & Views') {
         echo "Creating jobs and views"
