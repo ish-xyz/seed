@@ -221,7 +221,7 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
     def includes
     def excludes
     def trigger
-    def browser
+    def browser = ""
 
     switch (jobType) {
         case JOB_TYPES.SELENIUM_REGRESSION:
@@ -254,6 +254,7 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
             replaceAll(':includes:', includes).
             replaceAll(':excludes:', excludes).
             replaceAll(':trigger:', trigger).
+            replaceAll(':browser:', browser).
             replaceAll(':env:', jobConfig.job.environment)
 }
 
