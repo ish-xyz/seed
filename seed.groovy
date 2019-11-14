@@ -122,7 +122,7 @@ node() {
             if (jobConfig.job.type == JOB_TYPES.SELENIUM.toString()) {
                 echo "Building ${JOB_TYPES.SELENIUM} job config for ${jobConfig.job.jobName}"
                 if (jobConfig.job.regression.enabled as boolean) {
-                    dslScripts << generateSeleniumJobConfigs(multibranchPipelineTemplate, jobConfig, JOB_TYPES.SELENIUM_REGRESSION, browsers)
+                    dslScripts << generateSeleniumJobConfigs(multibranchPipelineTemplate, jobConfig, JOB_TYPES.SELENIUM_REGRESSION)
                 }
                 if (jobConfig.job.feature.enabled as boolean) {
                     dslScripts << generateSeleniumJobConfigs(multibranchPipelineTemplate, jobConfig, JOB_TYPES.SELENIUM_FEATURE)
@@ -226,6 +226,7 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
     switch (jobType) {
         case JOB_TYPES.SELENIUM_REGRESSION:
         case JOB_TYPES.SELENIUM_FEATURE:
+            browser = jobConfig?.job?.browser
         case JOB_TYPES.PERFORMANCE_FEATURE:
         case JOB_TYPES.PERFORMANCE_REGRESSION:
         case JOB_TYPES.PIPELINE:
@@ -253,7 +254,7 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
             replaceAll(':includes:', includes).
             replaceAll(':excludes:', excludes).
             replaceAll(':trigger:', trigger).
-            replaceAll(':browser:', jobConfig?.job?.browser).
+            replaceAll(':browser:', browser).
             replaceAll(':env:', jobConfig.job.environment).
             replaceAll("..", ".") //remove empty replacements
 }
