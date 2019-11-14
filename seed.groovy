@@ -219,6 +219,8 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
 
     switch (jobType) {
         case JOB_TYPES.SELENIUM:
+            includes = jobConfig.job.standalone.branches.includes
+            break;
         case JOB_TYPES.SELENIUM_REGRESSION:
             browser = jobConfig?.job?.browser
             includes = jobConfig.job.regression.branches.includes

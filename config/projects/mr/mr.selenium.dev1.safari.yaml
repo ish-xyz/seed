@@ -20,6 +20,8 @@ job:
     enabled: true
     trigger: 'periodic(15)'
   standalone:
+    branches:
+    'master'
     enabled: true
   orphanedOldItemsNumKeep: 3
   orphanedOldItemsDaysKeep: 1
