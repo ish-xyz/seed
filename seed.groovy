@@ -255,7 +255,8 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
             replaceAll(':excludes:', excludes).
             replaceAll(':trigger:', trigger).
             replaceAll(':browser:', browser).
-            replaceAll(':env:', jobConfig.job.environment)
+            replaceAll(':env:', jobConfig.job.environment).
+            replace("..", ".") //empty replacements clean up
 }
 
 @NonCPS
@@ -342,12 +343,12 @@ def generateStandaloneJobConfigs(String repoName, JobConfig repoConfig, def dslS
 
 @NonCPS
 def generatePerformanceJobConfigs(def dslPerformanceTemplate, def jobConfig, JOB_TYPES jobType) {
-    return getJobForConfig(dslPerformanceTemplate, jobConfig, jobType).replace("..", ".") //remove empty replacements
+    return getJobForConfig(dslPerformanceTemplate, jobConfig, jobType)
 }
 
 @NonCPS
 def generateSeleniumJobConfigs(def dslSeleniumTemplate, def jobConfig, JOB_TYPES jobType) {
-    return getJobForConfig(dslSeleniumTemplate, jobConfig, jobType).replace("..", ".")
+    return getJobForConfig(dslSeleniumTemplate, jobConfig, jobType)
 }
 
 
