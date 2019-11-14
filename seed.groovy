@@ -64,7 +64,7 @@ String serviceRoot = 'https://zensus-pl.corp.capgemini.com'
 
 node() {
     final String mainFolder = "tests_y"
-    def yaml = null
+    def yamlModule, viewsModule = null
     def job = null
     def dslScriptTemplate, view, dslScriptPipelineTemplate, folderSource = ''
     def jobConfigs = []
@@ -82,14 +82,15 @@ node() {
                 url: "https://github.com/gabrielstar/seed.git"
     }
     stage('Init Modules') {
-        yaml = load "modules/moduleYAML.groovy"
+        yamlModule = load "modules/moduleYAML.groovy"
+        viewsModule = load "modules/moduleViews.groovy"
     }
     stage('Read templates') {
-        dslScriptTemplate = yaml.readTemplate('templates/multibranchPipeline.groovy')
-        folderSource = yaml.readTemplate('templates/folderSource.groovy')
-        dslScriptPipelineTemplate = yaml.readTemplate('templates/pipeline.groovy')
-        dslTestPipelineTemplate = yaml.readTemplate('templates/testPipeline.groovy')
-        view = yaml.readTemplate('templates/view.groovy')
+        dslScriptTemplate = yamlModule.readTemplate('templates/multibranchPipeline.groovy')
+        folderSource = yamlModule.readTemplate('templates/folderSource.groovy')
+        dslScriptPipelineTemplate = yamlModule.readTemplate('templates/pipeline.groovy')
+        dslTestPipelineTemplate = yamlModule.readTemplate('templates/testPipeline.groovy')
+        view = yamlModule.readTemplate('templates/view.groovy')
     }
     stage("Create Folder Structure") {
         String folderDsl
@@ -104,15 +105,15 @@ node() {
     }
 
     stage('Read YAML files') {
-        def configFiles = yaml.getConfigsPaths()
+        def configFiles = yamlModule.getConfigsPaths()
         for (def configFile : configFiles) {
             echo " %% READING CONFIG FILE: ${configFile} %%"
             def jobConfig = readYaml(file: "${configFile}")
             jobConfigs << jobConfig
-            yaml.printYAML(jobConfig)
+            yamlModule.printYAML(jobConfig)
 
         }
-        browsers = readYaml(file: "${env.WORKSPACE_LOCAL}/config/selenium.yaml")?.browsers
+        browsers = readYaml(file: "${env.WORKSPACE_LOCAL}/config/selenium.yamlModule")?.browsers
     }
     stage('Prepare Performance Job Configurations') {
         for (jobConfig in jobConfigs) {
@@ -162,37 +163,7 @@ stage('Prepare Job Configurations') {
 
 }*/
     stage('Prepare custom Views') {
-        echo "Preparing custom views"
-        jobConfigs.each {
-            jobConfig ->
-                dslScripts.add(view.
-                        replaceAll(':name:', "2. ${jobConfig?.job?.jobName}").
-                        replaceAll(':regex:', jobConfig?.job?.jobName).
-                        replaceAll(':folder:', mainFolder)
-                )
-        }
-        //regressions
-        dslScripts.add(view.
-                replaceAll(':name:', '0. regressions').
-                replaceAll(':regex:', 'regression').
-                replaceAll(':folder:', mainFolder)
-        )
-        //unstable
-        dslScripts.add(view.
-                replaceAll(':name:', '1. unstable').
-                replaceAll(':regex:', '.*').
-                replaceAll(':folder:', mainFolder)
-        )
-
-        browsers.each {
-            browser ->
-                dslScripts.add(view.
-                        replaceAll(':name:', "3. ${browser}").
-                        replaceAll(':regex:', browser).
-                        replaceAll(':folder:', mainFolder)
-                )
-        }
-
+        viewsModule.createViews(jobConfigs, mainFolder, browsers)
     }
     stage('Create Jobs & Views') {
         echo "Creating jobs and views"
