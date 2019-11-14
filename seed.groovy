@@ -70,7 +70,7 @@ String serviceRoot = 'https://zensus-pl.corp.capgemini.com'
 
 node() {
     final String mainFolder = "tests_y"
-    def utils = null
+    def yaml = null
     def job = null
     def dslScriptTemplate, view, dslScriptPipelineTemplate, folderSource = ''
     def jobConfigs = []
@@ -87,14 +87,14 @@ node() {
                 url: "https://github.com/gabrielstar/seed.git"
     }
     stage('Init Modules') {
-        utils = load "modules/utils.groovy"
+        yaml = load "modules/moduleYAML.groovy"
     }
     stage('Read templates') {
-        dslScriptTemplate = utils.readTemplate('templates/multibranchPipeline.groovy')
-        folderSource = utils.readTemplate('templates/folderSource.groovy')
-        dslScriptPipelineTemplate = utils.readTemplate('templates/pipeline.groovy')
-        dslTestPipelineTemplate = utils.readTemplate('templates/testPipeline.groovy')
-        view = utils.readTemplate('templates/view.groovy')
+        dslScriptTemplate = yaml.readTemplate('templates/multibranchPipeline.groovy')
+        folderSource = yaml.readTemplate('templates/folderSource.groovy')
+        dslScriptPipelineTemplate = yaml.readTemplate('templates/pipeline.groovy')
+        dslTestPipelineTemplate = yaml.readTemplate('templates/testPipeline.groovy')
+        view = yaml.readTemplate('templates/view.groovy')
     }
     stage("Create Folder Structure") {
         String folderDsl
@@ -109,12 +109,12 @@ node() {
     }
 
     stage('Read YAML files') {
-        def configFiles = utils.getConfigsPaths()
+        def configFiles = yaml.getConfigsPaths()
         for (def configFile : configFiles) {
             echo " %% READING CONFIG FILE: ${configFile} %%"
             def jobConfig = readYaml(file: "${configFile}")
             jobConfigs << jobConfig
-            utils.printYAML(jobConfig)
+            yaml.printYAML(jobConfig)
 
         }
     }
@@ -164,42 +164,42 @@ stage('Prepare Job Configurations') {
 
     }
 
-}
-stage('Prepare custom Views') {
-    echo "Preparing custom views"
-    //project views
-    repoJobConfigs.each {
-        name, content ->
-            dslScripts.add(view.
-                    replaceAll(':name:', "2. ${name}").
-                    replaceAll(':regex:', name)
-            )
-    }
-    //regressions
-    dslScripts.add(view.
-            replaceAll(':name:', '0. regressions').
-            replaceAll(':regex:', 'regression')
-    )
-    //unstable
-    dslScripts.add(view.
-            replaceAll(':name:', '1. unstable').
-            replaceAll(':regex:', '.*')
-    )
-    //browsers
-    browsers.each {
-        browser ->
-            dslScripts.add(view.
-                    replaceAll(':name:', "3. ${browser}").
-                    replaceAll(':regex:', browser)
-            )
-    }
 }*/
+    stage('Prepare custom Views') {
+        echo "Preparing custom views"
+        //project views
+        /*
+        repoJobConfigs.each {
+            name, content ->
+                dslScripts.add(view.
+                        replaceAll(':name:', "2. ${name}").
+                        replaceAll(':regex:', name)
+                )
+        }*/
+        //regressions
+        dslScripts.add(view.
+                replaceAll(':name:', '0. regressions').
+                replaceAll(':regex:', 'regression')
+        )
+        //unstable
+        dslScripts.add(view.
+                replaceAll(':name:', '1. unstable').
+                replaceAll(':regex:', '.*')
+        )
+        /*
+        browsers.each {
+            browser ->
+                dslScripts.add(view.
+                        replaceAll(':name:', "3. ${browser}").
+                        replaceAll(':regex:', browser)
+                )
+        }
+        */
+    }
     stage('Create Jobs & Views') {
         echo "Creating jobs and views"
         if (dslScripts.size() > 0) {
             String dslOutput = dslScripts.join("\n")
-            echo "Script source to execute:"
-            echo dslOutput
             writeFile(file: 'dslOutput.groovy', text: dslOutput)
             jobDsl failOnMissingPlugin: true, unstableOnDeprecation: true, targets: 'dslOutput.groovy'
         }
