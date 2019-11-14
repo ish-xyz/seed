@@ -190,7 +190,8 @@ stage('Prepare Job Configurations') {
             browser ->
                 dslScripts.add(view.
                         replaceAll(':name:', "3. ${browser}").
-                        replaceAll(':regex:', browser)
+                        replaceAll(':regex:', browser).
+                        replaceAll(':folder:', mainFolder)
                 )
         }
 
