@@ -163,7 +163,7 @@ stage('Prepare Job Configurations') {
 
 }*/
     stage('Prepare custom Views') {
-        viewsModule.createViews(jobConfigs, mainFolder, browsers)
+        dslScripts.addAll(viewsModule.createViewsDSL(view, jobConfigs, mainFolder, browsers))
     }
     stage('Create Jobs & Views') {
         echo "Creating jobs and views"

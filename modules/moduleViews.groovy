@@ -1,4 +1,5 @@
-def createViews(def jobConfigs, def mainFolder, def browsers) {
+def createViewsDSL(def view, def jobConfigs, def mainFolder, def browsers) {
+    def dslScripts = []
     echo "Preparing custom views"
     jobConfigs.each {
         jobConfig ->
@@ -29,6 +30,7 @@ def createViews(def jobConfigs, def mainFolder, def browsers) {
                     replaceAll(':folder:', mainFolder)
             )
     }
+    return dslScripts
 }
 
 return this
