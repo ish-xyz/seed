@@ -1,24 +1,3 @@
-class JobConfig implements Serializable {
-    def URL
-    //non-existing branches
-    def orphanedOldItemsNumKeep = '3'
-    def orphanedOldItemsDaysKeep = '1'
-    //e.g. for develop regression
-    def oldItemsNumKeep = '10'
-    def oldItemsDaysKeep = '10'
-    def oldArtifactsNumKeep = '10'
-    def oldArtifactsDaysKeep = '10'
-
-    protected String jobName
-    protected String scriptPath
-    protected String credentialsId
-    def performanceJobs = []
-
-}
-
-class PerformanceJobConfig extends JobConfig implements Serializable {
-
-}
 
 //performance feature & tests put inside because number of jobs per view grew too large
 public enum JOB_TYPES {
@@ -41,21 +20,6 @@ public enum JOB_TYPES {
     }
 }
 
-//envs and envs templates for where they are dynamically generated
-public enum ENVIRONMENTS {
-    DEV("DEV__ENV__01"), DEV2("DEV__ENV__02"), PINT1("PINT1"), PINT2("PINT2")
-    final String env
-
-    private ENVIRONMENTS(String env) {
-        this.env = env
-    }
-}
-
-//generations exclusions
-def excludedEnvironments = []
-def excludedEnvironmentsForRegression = []
-//some projects use common envs e.g. datenportal-gateway -> datenportal
-def replaceMapEnvs = ["-gateway_": ""]
 def dslScripts = []
 def credentialsId = 'CORP-TU'
 String serviceRoot = 'https://zensus-pl.corp.capgemini.com'
@@ -259,7 +223,6 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
             replaceAll(':includes:', includes).
             replaceAll(':excludes:', excludes).
             replaceAll(':trigger:', trigger).
-            replaceAll(':browser:', browser).
             replaceAll(':env:', jobConfig.job.environment)
 }
 
