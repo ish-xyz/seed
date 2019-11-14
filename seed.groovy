@@ -1,7 +1,29 @@
+class JobConfig implements Serializable {
+    def URL
+    //non-existing branches
+    def orphanedOldItemsNumKeep = '3'
+    def orphanedOldItemsDaysKeep = '1'
+    //e.g. for develop regression
+    def oldItemsNumKeep = '10'
+    def oldItemsDaysKeep = '10'
+    def oldArtifactsNumKeep = '10'
+    def oldArtifactsDaysKeep = '10'
+
+    protected String jobName
+    protected String scriptPath
+    protected String credentialsId
+    def performanceJobs = []
+
+}
+
+class PerformanceJobConfig extends JobConfig implements Serializable {
+
+}
 
 //performance feature & tests put inside because number of jobs per view grew too large
 public enum JOB_TYPES {
-    FEATURE("feature"), REGRESSION("regression"), STANDALONE("standalone"), PIPELINE("pipeline"),
+
+    SELENIUM_FEATURE("selenium/feature"), SELENIUM_REGRESSION("selenium/regression"), SELENIUM_STANDALONE("selenium/standalone"), PIPELINE("pipeline"),
     PERFORMANCE("performance"), PERFORMANCE_REGRESSION("performance/regression"), PERFORMANCE_FEATURE("performance/feature"),
     SELENIUM("selenium")
 
@@ -84,6 +106,21 @@ node() {
         for (jobConfig in jobConfigs) {
             if (jobConfig.job.type == JOB_TYPES.PERFORMANCE.toString()) {
                 echo "Building ${JOB_TYPES.PERFORMANCE} job config for ${jobConfig.job.jobName}"
+                if (jobConfig.job.regression.enabled as boolean) {
+                    dslScripts << generatePerformanceJobConfigs(dslScriptTemplate, jobConfig, JOB_TYPES.PERFORMANCE_REGRESSION)
+                }
+                if (jobConfig.job.feature.enabled as boolean) {
+                    dslScripts << generatePerformanceJobConfigs(dslScriptTemplate, jobConfig, JOB_TYPES.PERFORMANCE_FEATURE)
+                }
+                echo "Excluded branches: " + jobConfig.job.feature.excludedBranches
+            } else
+                echo "Not a performance job: ${jobConfig.job.jobName}, ${JOB_TYPES.PERFORMANCE}"
+        }
+    }
+    stage('Prepare Selenium Job Configurations') {
+        for (jobConfig in jobConfigs) {
+            if (jobConfig.job.type == JOB_TYPES.SELENIUM.toString()) {
+                echo "Building ${JOB_TYPES.SELENIUM} job config for ${jobConfig.job.jobName}"
                 if (jobConfig.job.regression.enabled as boolean) {
                     dslScripts << generatePerformanceJobConfigs(dslScriptTemplate, jobConfig, JOB_TYPES.PERFORMANCE_REGRESSION)
                 }
@@ -184,20 +221,14 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
     def includes
     def excludes
     def trigger
+    def browser
 
     switch (jobType) {
+        case JOB_TYPES.SELENIUM_REGRESSION:
+        case JOB_TYPES.SELENIUM_FEATURE:
+            browser = jobConfig.job?.selenium?.browser ?: ""
         case JOB_TYPES.PERFORMANCE_FEATURE:
-        case JOB_TYPES.FEATURE:
-            includes = jobConfig.job.feature.branches.includes
-            excludes = jobConfig.job.feature.branches.excludes
-            trigger = jobConfig.job.feature.trigger
-            break
         case JOB_TYPES.PERFORMANCE_REGRESSION:
-        case JOB_TYPES.REGRESSION:
-            includes = jobConfig.job.regression.branches.includes
-            excludes = jobConfig.job.regression.branches.excludes //otherwise trait will throw error
-            trigger = jobConfig.job.regression.trigger
-            break
         case JOB_TYPES.PIPELINE:
             includes = jobConfig.job.regression.branches.includes
             excludes = jobConfig.job.regression.branches.excludes
@@ -205,7 +236,7 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
             break
 
     }
-    def browser = jobConfig.job?.selenium?.browser ?: ""
+
 
     return jobTemplate.
             replaceAll(':description:', jobConfig.job.description).
