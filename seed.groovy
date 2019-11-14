@@ -72,6 +72,10 @@ node() {
     def configBaseFolder = 'config/projects'
     def browsers = []
 
+
+    stage('Checkout Self') {
+        git branch: 'master', credentialsId: '', url: repoURL
+    }
     stage('Init Modules') {
         yamlModule = load "modules/moduleYAML.groovy"
         viewsModule = load "modules/moduleViews.groovy"
@@ -79,9 +83,6 @@ node() {
     }
     stage("Prepare WS") {
         utilsModule.prepareWorkspace()
-    }
-    stage('Checkout Self') {
-        utilsModule.checkout(repoURL)
     }
     stage('Read templates') {
         dslScriptTemplate = yamlModule.readTemplate('templates/multibranchPipeline.groovy')
