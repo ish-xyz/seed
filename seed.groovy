@@ -141,6 +141,11 @@ node() {
         env.WORKSPACE_LOCAL = sh(returnStdout: true, script: 'pwd').trim()
         echo "Workspace set to:" + env.WORKSPACE_LOCAL
     }
+    stage('Checkout Self') {
+        git branch: 'master',
+                credentialsId: "",
+                url: "https://github.com/gabrielstar/seed.git"
+    }
     stage('Init Modules') {
         utils = load "modules/utils.groovy"
     }
@@ -160,11 +165,6 @@ node() {
         jobDsl failOnMissingPlugin: true, unstableOnDeprecation: true, targets: 'folderStructure.groovy'
     }
 
-    stage('Checkout Self') {
-        git branch: 'master',
-                credentialsId: "",
-                url: "https://github.com/gabrielstar/seed.git"
-    }
     stage('Read YAML files') {
         def configFiles = utils.getConfigsPaths()
         for (def configFile : configFiles) {
