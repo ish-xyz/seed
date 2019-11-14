@@ -220,14 +220,29 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
     switch (jobType) {
         case JOB_TYPES.SELENIUM:
         case JOB_TYPES.SELENIUM_REGRESSION:
-        case JOB_TYPES.SELENIUM_FEATURE:
             browser = jobConfig?.job?.browser
-        case JOB_TYPES.PERFORMANCE_FEATURE:
-        case JOB_TYPES.PERFORMANCE_REGRESSION:
-        case JOB_TYPES.PIPELINE:
             includes = jobConfig.job.regression.branches.includes
             excludes = jobConfig.job.regression.branches.excludes
             trigger = jobConfig.job.regression.trigger
+            break;
+        case JOB_TYPES.SELENIUM_FEATURE:
+            browser = jobConfig?.job?.browser
+            includes = jobConfig.job.feature.branches.includes
+            excludes = jobConfig.job.feature.branches.excludes
+            trigger = jobConfig.job.feature.trigger
+            break;
+        case JOB_TYPES.PERFORMANCE_FEATURE:
+            includes = jobConfig.job.feature.branches.includes
+            excludes = jobConfig.job.feature.branches.excludes
+            trigger = jobConfig.job.feature.trigger
+            break;
+        case JOB_TYPES.PERFORMANCE_REGRESSION:
+            includes = jobConfig.job.regression.branches.includes
+            excludes = jobConfig.job.regression.branches.excludes
+            trigger = jobConfig.job.regression.trigger
+            break;
+        case JOB_TYPES.PIPELINE:
+
             break
 
     }
