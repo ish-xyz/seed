@@ -9,7 +9,7 @@ def readTemplate(def templatePath) {
 
 def getYAMLConfigs(def extension, def excludes, def root = 'projects') {
     def configFilesPathList = []
-    configFilesPathList = findFiles(glob: "**/*${extension}", excludes: "**/${excludes}") //everywhere
+    configFilesPathList = findFiles(glob: "**/${root}/**/*${extension}", excludes: "**/${excludes}") //everywhere
     return configFilesPathList
 }
 
