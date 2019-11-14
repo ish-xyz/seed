@@ -1,7 +1,10 @@
 def prepareWorkspace() {
-    cleanWs()
     env.WORKSPACE_LOCAL = sh(returnStdout: true, script: 'pwd').trim()
     echo "Workspace set to:" + env.WORKSPACE_LOCAL
+}
+
+def cleanWorkspace() {
+    cleanWs()
 }
 
 def checkout(def repoURL, def branch = 'master', def credentialsId = '') {

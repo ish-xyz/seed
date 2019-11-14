@@ -72,7 +72,9 @@ node() {
     def configBaseFolder = 'config/projects'
     def browsers = []
 
-
+    stage("Clean Workspace") {
+        cleanWs()
+    }
     stage('Checkout Self') {
         git branch: 'master', credentialsId: '', url: repoURL
     }
