@@ -20,66 +20,6 @@ class PerformanceJobConfig extends JobConfig implements Serializable {
 
 }
 
-
-String dslScriptPipelineTemplate = '''
-pipelineJob(':folder:/:jobName:') {
-    description(":description:")
-    definition{
-      cpsScm{
-          scm{
-              git{
-                  branches("develop")
-                  remote{
-                      url(':URL:')
-                      credentials(':credentialsId:')
-                  }
-              }
-          }
-          scriptPath(':scriptPath:')
-      }
-    }
-}
-'''
-
-String dslTestPipelineTemplate = '''
-    pipelineJob(':folder:/:jobName:.:env:'){
-      description(":description:")
-      definition{
-        cpsFlowDefinition{
-          script("""
-                    def buildJob
-                    def failureStatus = 'FAILURE'
-                    node(){
-                        :jobList:
-                    }
-                 """)
-          sandbox(true)
-        }
-      }
-}
-'''
-
-String view = '''
-            listView('tests/:name:') {
-            description('')
-            filterBuildQueue()
-            filterExecutors()
-            jobs {
-                regex(/.*:regex:.*/)
-            }
-            recurse(true)
-            columns {
-                status()
-                weather()
-                name()
-                lastSuccess()
-                lastFailure()
-                lastDuration()
-                buildButton()
-            }
-        }
-        '''
-
 //performance feature & tests put inside because number of jobs per view grew too large
 public enum JOB_TYPES {
     FEATURE("feature"), REGRESSION("regression"), STANDALONE("standalone"), PIPELINE("pipeline"),
@@ -132,7 +72,7 @@ node() {
     final String mainFolder = "tests_y"
     def utils = null
     def job = null
-    def dslScriptTemplate, folderSource = ''
+    def dslScriptTemplate, view, dslScriptPipelineTemplate, folderSource = ''
     def jobConfigs = []
     def configBaseFolder = 'config/projects'
 
@@ -150,8 +90,11 @@ node() {
         utils = load "modules/utils.groovy"
     }
     stage('Read templates') {
-        dslScriptTemplate = utils.readTemplate('templates/dslScriptTemplate.tmpl')
-        folderSource = utils.readTemplate('templates/folderSource.tmpl')
+        dslScriptTemplate = utils.readTemplate('templates/multibranchPipeline.groovy')
+        folderSource = utils.readTemplate('templates/folderSource.groovy')
+        dslScriptPipelineTemplate = utils.readTemplate('templates/pipeline.groovy')
+        dslTestPipelineTemplate = utils.readTemplate('templates/testPipeline.groovy')
+        view = utils.readTemplate('templates/view.groovy')
     }
     stage("Create Folder Structure") {
         String folderDsl
@@ -195,17 +138,17 @@ stage('Prepare Job Configurations') {
     repoJobConfigs.each { String repoName, JobConfig repoConfig ->
         echo "Generating functional tests feature jobs configs: "
         //feature jobs for all branches, with default environment, testers can change
-        dslScripts += (generateFeatureJobConfigs(repoName, repoConfig, dslScriptTemplate.tmpl, browsers))
+        dslScripts += (generateFeatureJobConfigs(repoName, repoConfig, multibranchPipeline.groovy, browsers))
 
         echo "Generating functional tests regression jobs configs: "
-        dslScripts += (generateRegressionJobConfigs(repoName, repoConfig, dslScriptTemplate.tmpl, browsers, ENVIRONMENTS, excludedEnvironmentsForRegression))
+        dslScripts += (generateRegressionJobConfigs(repoName, repoConfig, multibranchPipeline.groovy, browsers, ENVIRONMENTS, excludedEnvironmentsForRegression))
 
         echo "Generating integrated test pipeline jobs configs"
         dslScripts += (generateTestPipelinesJobConfigs(
                 repoName,
                 repoConfig,
                 dslTestPipelineTemplate,
-                dslScriptTemplate.tmpl,
+                multibranchPipeline.groovy,
                 pipelineBrowsers,
                 ENVIRONMENTS,
                 excludedEnvironmentsForRegression
@@ -217,7 +160,7 @@ stage('Prepare Job Configurations') {
 
         echo "Generating performance jobs configs"
         //stand-alone jobs
-        dslScripts += (generatePerformanceJobConfigs(repoName, repoConfig, dslScriptTemplate.tmpl, excludedEnvironmentsForRegression))
+        dslScripts += (generatePerformanceJobConfigs(repoName, repoConfig, multibranchPipeline.groovy, excludedEnvironmentsForRegression))
 
     }
 
