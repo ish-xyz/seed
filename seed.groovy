@@ -127,7 +127,7 @@ node() {
                 if (jobConfig.job.feature.enabled as boolean) {
                     dslScripts << generateSeleniumJobConfigs(multibranchPipelineTemplate, jobConfig, JOB_TYPES.SELENIUM_FEATURE)
                 }
-                if (jobConfig.job.standalones.enabled as boolean) {
+                if (jobConfig.job.standalone.enabled as boolean) {
                     dslScripts << generateSeleniumJobConfigs(pipelineTemplate, jobConfig, JOB_TYPES.SELENIUM)
                 }
             } else
