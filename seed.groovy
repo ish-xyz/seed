@@ -63,27 +63,25 @@ String serviceRoot = 'https://zensus-pl.corp.capgemini.com'
 
 
 node() {
+    def repoURL = "https://github.com/gabrielstar/seed.git"
     final String mainFolder = "tests_y"
-    def yamlModule, viewsModule = null
+    def yamlModule, viewsModule, utilsModule = null
     def job = null
     def dslScriptTemplate, view, dslScriptPipelineTemplate, folderSource = ''
     def jobConfigs = []
     def configBaseFolder = 'config/projects'
     def browsers = []
 
-    stage("Prepare WS") {
-        cleanWs()
-        env.WORKSPACE_LOCAL = sh(returnStdout: true, script: 'pwd').trim()
-        echo "Workspace set to:" + env.WORKSPACE_LOCAL
-    }
-    stage('Checkout Self') {
-        git branch: 'master',
-                credentialsId: "",
-                url: "https://github.com/gabrielstar/seed.git"
-    }
     stage('Init Modules') {
         yamlModule = load "modules/moduleYAML.groovy"
         viewsModule = load "modules/moduleViews.groovy"
+        utilsModule = load "modules/moduleUtils.groovy"
+    }
+    stage("Prepare WS") {
+        utilsModule.prepareWorkspace()
+    }
+    stage('Checkout Self') {
+        utilsModule.checkout(repoURL)
     }
     stage('Read templates') {
         dslScriptTemplate = yamlModule.readTemplate('templates/multibranchPipeline.groovy')
