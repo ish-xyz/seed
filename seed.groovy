@@ -179,7 +179,7 @@ stage('Prepare Job Configurations') {
         //regressions
         dslScripts.add(view.
                 replaceAll(':name:', '0. regressions').
-                replaceAll(':regex:', 'regression/*/**').
+                replaceAll(':regex:', 'regression').
                 replaceAll(':folder:', mainFolder)
         )
         //unstable
