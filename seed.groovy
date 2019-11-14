@@ -20,12 +20,6 @@ class PerformanceJobConfig extends JobConfig implements Serializable {
 
 }
 
-String folderSource = '''
-folder(':folder:') {
-    description('Repository jobs for Zensus Projects')
-}
-
-'''
 
 String dslScriptPipelineTemplate = '''
 pipelineJob(':folder:/:jobName:') {
@@ -117,7 +111,7 @@ public enum ENVIRONMENTS {
     }
 }
 
-final String mainFolder = "tests_y"
+
 final List browsers = ["firefox", "ie"]
 List pipelineBrowsers = browsers
 pipelineBrowsers.removeAll(["ie"]) //jobs for this browser will not make part of test pipeline
@@ -135,10 +129,10 @@ String serviceRoot = 'https://zensus-pl.corp.capgemini.com'
 
 
 node() {
-
+    final String mainFolder = "tests_y"
     def utils = null
     def job = null
-    def dslScriptTemplate2 = ''
+    def dslScriptTemplate, folderSource = ''
     def jobConfigs = []
     def configBaseFolder = 'config/projects'
 
@@ -147,10 +141,17 @@ node() {
         env.WORKSPACE_LOCAL = sh(returnStdout: true, script: 'pwd').trim()
         echo "Workspace set to:" + env.WORKSPACE_LOCAL
     }
+    stage('Init Modules') {
+        utils = load "modules/utils.groovy"
+    }
+    stage('Read templates') {
+        dslScriptTemplate = utils.readTemplate('templates/dslScriptTemplate.tmpl')
+        folderSource = utils.readTemplate('templates/folderSource.tmpl')
+    }
     stage("Create Folder Structure") {
         String folderDsl
         List folders = []
-        folders.add(folderSource.replaceAll(':folder:', "tests_y"))
+        folders.add(folderSource.replaceAll(':folder:', mainFolder))
         JOB_TYPES.each {
             folders.add(folderSource.replaceAll(':folder:', it.folder))
         }
@@ -163,13 +164,6 @@ node() {
         git branch: 'master',
                 credentialsId: "",
                 url: "https://github.com/gabrielstar/seed.git"
-    }
-    stage('init modules') {
-        utils = load "modules/utils.groovy"
-    }
-    stage('Read templates') {
-        dslScriptTemplate2 = utils.readTemplate('templates/dslScriptTemplate.txt')
-        echo "$dslScriptTemplate2"
     }
     stage('Read YAML files') {
         def configFiles = utils.getConfigsPaths()
@@ -201,17 +195,17 @@ stage('Prepare Job Configurations') {
     repoJobConfigs.each { String repoName, JobConfig repoConfig ->
         echo "Generating functional tests feature jobs configs: "
         //feature jobs for all branches, with default environment, testers can change
-        dslScripts += (generateFeatureJobConfigs(repoName, repoConfig, dslScriptTemplate.txt, browsers))
+        dslScripts += (generateFeatureJobConfigs(repoName, repoConfig, dslScriptTemplate.tmpl, browsers))
 
         echo "Generating functional tests regression jobs configs: "
-        dslScripts += (generateRegressionJobConfigs(repoName, repoConfig, dslScriptTemplate.txt, browsers, ENVIRONMENTS, excludedEnvironmentsForRegression))
+        dslScripts += (generateRegressionJobConfigs(repoName, repoConfig, dslScriptTemplate.tmpl, browsers, ENVIRONMENTS, excludedEnvironmentsForRegression))
 
         echo "Generating integrated test pipeline jobs configs"
         dslScripts += (generateTestPipelinesJobConfigs(
                 repoName,
                 repoConfig,
                 dslTestPipelineTemplate,
-                dslScriptTemplate.txt,
+                dslScriptTemplate.tmpl,
                 pipelineBrowsers,
                 ENVIRONMENTS,
                 excludedEnvironmentsForRegression
@@ -223,7 +217,7 @@ stage('Prepare Job Configurations') {
 
         echo "Generating performance jobs configs"
         //stand-alone jobs
-        dslScripts += (generatePerformanceJobConfigs(repoName, repoConfig, dslScriptTemplate.txt, excludedEnvironmentsForRegression))
+        dslScripts += (generatePerformanceJobConfigs(repoName, repoConfig, dslScriptTemplate.tmpl, excludedEnvironmentsForRegression))
 
     }
 
@@ -270,7 +264,6 @@ stage('Prepare custom Views') {
 
 
 }
-
 
 //###################### END ############################
 @NonCPS
