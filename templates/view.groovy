@@ -1,4 +1,4 @@
-listView('tests/:name:') {
+listView(':folder:/:name:') {
     description('')
     filterBuildQueue()
     filterExecutors()
