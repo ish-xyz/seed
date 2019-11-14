@@ -180,10 +180,10 @@ node() {
             if (jobConfig.job.type == JOB_TYPES.PERFORMANCE.toString()) {
                 echo "Building ${JOB_TYPES.PERFORMANCE} job config for ${jobConfig.job.jobName}"
                 if (jobConfig.job.regression.enabled as boolean) {
-                    dslScripts << generatePerformanceJobConfigs(dslScriptTemplate2, jobConfig, JOB_TYPES.PERFORMANCE_REGRESSION)
+                    dslScripts << generatePerformanceJobConfigs(dslScriptTemplate, jobConfig, JOB_TYPES.PERFORMANCE_REGRESSION)
                 }
                 if (jobConfig.job.feature.enabled as boolean) {
-                    dslScripts << generatePerformanceJobConfigs(dslScriptTemplate2, jobConfig, JOB_TYPES.PERFORMANCE_FEATURE)
+                    dslScripts << generatePerformanceJobConfigs(dslScriptTemplate, jobConfig, JOB_TYPES.PERFORMANCE_FEATURE)
                 }
                 echo "Excluded branches: " + jobConfig.job.feature.excludedBranches
             } else
