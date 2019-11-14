@@ -149,12 +149,6 @@ stage('Prepare Job Configurations') {
                 excludedEnvironmentsForRegression
         ))
 
-        echo "Generating standalone jobs configs"
-        //stand-alone jobs
-        dslScripts += (generateStandaloneJobConfigs(repoName, repoConfig, pipelineTemplate))
-
-
-
     }
 
 }*/
