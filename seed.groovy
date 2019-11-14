@@ -52,7 +52,6 @@ public enum ENVIRONMENTS {
 }
 
 
-final List browsers = ["firefox", "ie"]
 List pipelineBrowsers = browsers
 pipelineBrowsers.removeAll(["ie"]) //jobs for this browser will not make part of test pipeline
 //we cannot use "-" here because static methods are disallowed on jenkins
@@ -75,6 +74,7 @@ node() {
     def dslScriptTemplate, view, dslScriptPipelineTemplate, folderSource = ''
     def jobConfigs = []
     def configBaseFolder = 'config/projects'
+    List browsers = []
 
     stage("Prepare WS") {
         cleanWs()
@@ -117,6 +117,7 @@ node() {
             yaml.printYAML(jobConfig)
 
         }
+        browsers = readYaml(file: "config/selenium.yaml")?.browsers
     }
     stage('Prepare Performance Job Configurations') {
         for (jobConfig in jobConfigs) {
@@ -188,7 +189,7 @@ stage('Prepare Job Configurations') {
                 replaceAll(':regex:', '.*').
                 replaceAll(':folder:', mainFolder)
         )
-        /*
+
         browsers.each {
             browser ->
                 dslScripts.add(view.
@@ -196,7 +197,7 @@ stage('Prepare Job Configurations') {
                         replaceAll(':regex:', browser)
                 )
         }
-        */
+        
     }
     stage('Create Jobs & Views') {
         echo "Creating jobs and views"
