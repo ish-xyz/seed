@@ -167,7 +167,7 @@ stage('Prepare Job Configurations') {
             jobConfig ->
                 dslScripts.add(view.
                         replaceAll(':name:', "2. ${jobConfig?.job?.jobName}").
-                        replaceAll(':regex:', jobConfig?.job?.jobName)
+                        replaceAll(':regex:', jobConfig?.job?.jobName).
                         replaceAll(':folder:', mainFolder)
                 )
         }
