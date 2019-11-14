@@ -212,10 +212,7 @@ def getRegressionJobFor(String projectName, String browser, String env, String b
 @NonCPS
 def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
 
-    def includes
-    def excludes
-    def trigger
-    def browser = ""
+    def includes, excludes, trigger, browser = ""
 
     switch (jobType) {
         case JOB_TYPES.SELENIUM:
