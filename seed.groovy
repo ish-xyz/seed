@@ -117,7 +117,7 @@ node() {
             yaml.printYAML(jobConfig)
 
         }
-        browsers = readYaml(file: "config/selenium.yaml")?.browsers
+        browsers = readYaml(file: "${env.WORKSPACE_LOCAL}/config/selenium.yaml")?.browsers
     }
     stage('Prepare Performance Job Configurations') {
         for (jobConfig in jobConfigs) {
