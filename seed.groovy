@@ -53,7 +53,7 @@ node() {
     final String mainFolder = "tests_y"
     def yamlModule, viewsModule, utilsModule = null
     def job = null
-    def dslScriptTemplate, view, dslScriptPipelineTemplate, folderSource = ''
+    def multibranchPipelineTemplate, viewTemplate, pipelineTemplate, folderStructureTemplate = ''
     def jobConfigs = []
     def configBaseFolder = 'config/projects'
     def browsers = []
@@ -73,18 +73,18 @@ node() {
         utilsModule.prepareWorkspace()
     }
     stage('Read templates') {
-        dslScriptTemplate = yamlModule.readTemplate('templates/multibranchPipeline.groovy')
-        folderSource = yamlModule.readTemplate('templates/folderSource.groovy')
-        dslScriptPipelineTemplate = yamlModule.readTemplate('templates/pipeline.groovy')
+        multibranchPipelineTemplate = yamlModule.readTemplate('templates/multibranchPipeline.groovy')
+        folderStructureTemplate = yamlModule.readTemplate('templates/folderStructureTemplate.groovy')
+        pipelineTemplate = yamlModule.readTemplate('templates/pipeline.groovy')
         dslTestPipelineTemplate = yamlModule.readTemplate('templates/testPipeline.groovy')
-        view = yamlModule.readTemplate('templates/view.groovy')
+        viewTemplate = yamlModule.readTemplate('templates/view.groovy')
     }
     stage("Create Folder Structure") {
         String folderDsl
         List folders = []
-        folders.add(folderSource.replaceAll(':folder:', mainFolder))
+        folders.add(folderStructureTemplate.replaceAll(':folder:', mainFolder))
         JOB_TYPES.each {
-            folders.add(folderSource.replaceAll(':folder:', it.folder))
+            folders.add(folderStructureTemplate.replaceAll(':folder:', it.folder))
         }
         folderDsl = folders.join("\n")
         writeFile(file: 'folderStructure.groovy', text: folderDsl)
@@ -107,10 +107,10 @@ node() {
             if (jobConfig.job.type == JOB_TYPES.PERFORMANCE.toString()) {
                 echo "Building ${JOB_TYPES.PERFORMANCE} job config for ${jobConfig.job.jobName}"
                 if (jobConfig.job.regression.enabled as boolean) {
-                    dslScripts << generatePerformanceJobConfigs(dslScriptTemplate, jobConfig, JOB_TYPES.PERFORMANCE_REGRESSION)
+                    dslScripts << generatePerformanceJobConfigs(multibranchPipelineTemplate, jobConfig, JOB_TYPES.PERFORMANCE_REGRESSION)
                 }
                 if (jobConfig.job.feature.enabled as boolean) {
-                    dslScripts << generatePerformanceJobConfigs(dslScriptTemplate, jobConfig, JOB_TYPES.PERFORMANCE_FEATURE)
+                    dslScripts << generatePerformanceJobConfigs(multibranchPipelineTemplate, jobConfig, JOB_TYPES.PERFORMANCE_FEATURE)
                 }
                 echo "Excluded branches: " + jobConfig.job.feature.excludedBranches
             } else
@@ -122,14 +122,14 @@ node() {
             if (jobConfig.job.type == JOB_TYPES.SELENIUM.toString()) {
                 echo "Building ${JOB_TYPES.SELENIUM} job config for ${jobConfig.job.jobName}"
                 if (jobConfig.job.regression.enabled as boolean) {
-                    dslScripts << generatePerformanceJobConfigs(dslScriptTemplate, jobConfig, JOB_TYPES.PERFORMANCE_REGRESSION)
+                    dslScripts << generateSeleniumJobConfigs(multibranchPipelineTemplate, jobConfig, JOB_TYPES.SELENIUM_REGRESSION)
                 }
                 if (jobConfig.job.feature.enabled as boolean) {
-                    dslScripts << generatePerformanceJobConfigs(dslScriptTemplate, jobConfig, JOB_TYPES.PERFORMANCE_FEATURE)
+                    dslScripts << generateSeleniumJobConfigs(multibranchPipelineTemplate, jobConfig, JOB_TYPES.SELENIUM_FEATURE)
                 }
                 echo "Excluded branches: " + jobConfig.job.feature.excludedBranches
             } else
-                echo "Not a performance job: ${jobConfig.job.jobName}, ${JOB_TYPES.PERFORMANCE}"
+                echo "Not a selenium job: ${jobConfig.job.jobName}, ${JOB_TYPES.SELENIUM}"
         }
     }
 /*
@@ -155,7 +155,7 @@ stage('Prepare Job Configurations') {
 
         echo "Generating standalone jobs configs"
         //stand-alone jobs
-        dslScripts += (generateStandaloneJobConfigs(repoName, repoConfig, dslScriptPipelineTemplate))
+        dslScripts += (generateStandaloneJobConfigs(repoName, repoConfig, pipelineTemplate))
 
         echo "Generating performance jobs configs"
         //stand-alone jobs
@@ -165,7 +165,7 @@ stage('Prepare Job Configurations') {
 
 }*/
     stage('Prepare custom Views') {
-        dslScripts.addAll(viewsModule.createViewsDSL(view, jobConfigs, mainFolder, browsers))
+        dslScripts.addAll(viewsModule.createViewsDSL(viewTemplate, jobConfigs, mainFolder, browsers))
     }
     stage('Create Jobs & Views') {
         echo "Creating jobs and views"
@@ -353,5 +353,11 @@ def generateStandaloneJobConfigs(String repoName, JobConfig repoConfig, def dslS
 def generatePerformanceJobConfigs(def dslPerformanceTemplate, def jobConfig, JOB_TYPES jobType) {
     return getJobForConfig(dslPerformanceTemplate, jobConfig, jobType).replace("..", ".")
 }
+
+@NonCPS
+def generateSeleniumJobConfigs(def dslSeleniumTemplate, def jobConfig, JOB_TYPES jobType) {
+    return getJobForConfig(dslSeleniumTemplate, jobConfig, jobType).replace("..", ".")
+}
+
 
 return this
