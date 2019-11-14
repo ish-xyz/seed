@@ -128,7 +128,7 @@ node() {
                     dslScripts << generateSeleniumJobConfigs(multibranchPipelineTemplate, jobConfig, JOB_TYPES.SELENIUM_FEATURE)
                 }
                 if (jobConfig.job.standalone.enabled as boolean) {
-                    dslScripts << generateSeleniumJobConfigs(pipelineTemplate, jobConfig, JOB_TYPES.SELENIUM)
+                    dslScripts << generateSeleniumJobConfigs(pipelineTemplate, jobConfig, JOB_TYPES.SELENIUM_STANDALONE)
                 }
             } else
                 echo "Not a selenium job: ${jobConfig.job.jobName}, ${JOB_TYPES.SELENIUM}"
@@ -216,6 +216,7 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
 
     switch (jobType) {
         case JOB_TYPES.SELENIUM:
+        case JOB_TYPES.SELENIUM_STANDALONE:
             includes = jobConfig.job.standalone.branches.includes
             break;
         case JOB_TYPES.SELENIUM_REGRESSION:
