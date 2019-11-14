@@ -52,10 +52,6 @@ public enum ENVIRONMENTS {
 }
 
 
-List pipelineBrowsers = browsers
-pipelineBrowsers.removeAll(["ie"]) //jobs for this browser will not make part of test pipeline
-//we cannot use "-" here because static methods are disallowed on jenkins
-
 //generations exclusions
 def excludedEnvironments = []
 def excludedEnvironmentsForRegression = []
