@@ -127,7 +127,9 @@ node() {
                 if (jobConfig.job.feature.enabled as boolean) {
                     dslScripts << generateSeleniumJobConfigs(multibranchPipelineTemplate, jobConfig, JOB_TYPES.SELENIUM_FEATURE)
                 }
-                echo "Excluded branches: " + jobConfig.job.feature.excludedBranches
+                if (jobConfig.job.standalones.enabled as boolean) {
+                    dslScripts << generateSeleniumJobConfigs(pipelineTemplate, jobConfig, JOB_TYPES.SELENIUM)
+                }
             } else
                 echo "Not a selenium job: ${jobConfig.job.jobName}, ${JOB_TYPES.SELENIUM}"
         }
@@ -135,12 +137,6 @@ node() {
 /*
 stage('Prepare Job Configurations') {
     repoJobConfigs.each { String repoName, JobConfig repoConfig ->
-        echo "Generating functional tests feature jobs configs: "
-        //feature jobs for all branches, with default environment, testers can change
-        dslScripts += (generateFeatureJobConfigs(repoName, repoConfig, multibranchPipeline.groovy, browsers))
-
-        echo "Generating functional tests regression jobs configs: "
-        dslScripts += (generateRegressionJobConfigs(repoName, repoConfig, multibranchPipeline.groovy, browsers, ENVIRONMENTS, excludedEnvironmentsForRegression))
 
         echo "Generating integrated test pipeline jobs configs"
         dslScripts += (generateTestPipelinesJobConfigs(
@@ -157,9 +153,7 @@ stage('Prepare Job Configurations') {
         //stand-alone jobs
         dslScripts += (generateStandaloneJobConfigs(repoName, repoConfig, pipelineTemplate))
 
-        echo "Generating performance jobs configs"
-        //stand-alone jobs
-        dslScripts += (generatePerformanceJobConfigs(repoName, repoConfig, multibranchPipeline.groovy, excludedEnvironmentsForRegression))
+
 
     }
 
@@ -224,6 +218,7 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
     def browser = ""
 
     switch (jobType) {
+        case JOB_TYPES.SELENIUM:
         case JOB_TYPES.SELENIUM_REGRESSION:
         case JOB_TYPES.SELENIUM_FEATURE:
             browser = jobConfig?.job?.browser
@@ -279,23 +274,6 @@ def generateFeatureJobConfigs(String repoName, JobConfig repoConfig, def dslScri
     configs
 }
 
-@NonCPS
-def generateRegressionJobConfigs(String repoName, JobConfig repoConfig, def dslScriptTemplate, def browsers, def ENVIRONMENTS, def excludedEnvironmentsForRegression) {
-    def configs = []
-    browsers.each { browser ->
-        ENVIRONMENTS.each {
-            //regression jobs for develop, for each browser and environment, every 60 mins
-            description = "This is the regression job for project ${repoName} for browser ${browser} and environment ${it.env}. By default it runs all tests that are tagged with @regression tag. Only develop gets regression job by default. "
-            description += "They run regularly twice a day with cron job."
-            def env = replaceVariablesForEnvironments(it.env, repoConfig["jobName"])
-            if (!(env in excludedEnvironmentsForRegression)) {
-                echo "ENV: $env"
-                configs.add(getJobForConfig(dslScriptTemplate, repoConfig, JOB_TYPES.REGRESSION, description, browser, env))
-            }
-        }
-    }
-    configs
-}
 
 @NonCPS
 def generateTestPipelinesJobConfigs(String repoName, JobConfig repoConfig, def dslTestPipelineTemplate, def dslPerformanceTemplate, def browsers, def ENVIRONMENTS, def excludedEnvironmentsForRegression) {
