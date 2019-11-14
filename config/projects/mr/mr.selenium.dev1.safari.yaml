@@ -21,7 +21,7 @@ job:
     trigger: 'periodic(15)'
   standalone:
     branches:
-    'master'
+      includes: 'master'
     enabled: true
   orphanedOldItemsNumKeep: 3
   orphanedOldItemsDaysKeep: 1
