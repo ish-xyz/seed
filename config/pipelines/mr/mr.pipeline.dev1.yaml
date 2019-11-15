@@ -1,12 +1,10 @@
 job:
-  jobName:
-    mr
-  environment:
-    dev1
+  jobName: 'mr'
+  environment: 'dev1'
 chain:
-- downstreamJob: mr.selenium.dev1.safari.yaml
-  type: regression
-  branch: develop
-- downstreamJob: mr.performance.dev1.yaml
-  type: regression
-  branch: develop
+- downstreamJob: 'mr.selenium.dev1.safari.yaml'
+  type: 'regression'
+  branch: 'develop'
+- downstreamJob: 'mr.performance.dev1.yaml'
+  type: 'regression'
+  branch: 'develop'
