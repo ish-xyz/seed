@@ -76,8 +76,8 @@ node() {
         multibranchPipelineTemplate = yamlModule.readTemplate('templates/multibranchPipeline.groovy')
         folderStructureTemplate = yamlModule.readTemplate('templates/folderStructureTemplate.groovy')
         pipelineTemplate = yamlModule.readTemplate('templates/pipeline.groovy')
-        pipelineStageTemplate = yamlModule.readTemplate('templates/pipelineStage.groovy')
-        dslTestPipelineTemplate = yamlModule.readTemplate('templates/testPipeline.groovy')
+        testPipelineTemplate = yamlModule.readTemplate('templates/testPipeline.groovy')
+        testPipelineStageTemplate = yamlModule.readTemplate('templates/pipelineStage.groovy')
         viewTemplate = yamlModule.readTemplate('templates/view.groovy')
 
         browsers = readYaml(file: "${env.WORKSPACE_LOCAL}/config/selenium.yaml")?.browsers
@@ -146,28 +146,31 @@ node() {
         }
         stage('Prepare Test Pipelines Job Configurations') {
             for (def testPipelineConfig : testPipelineConfigs) {
-                for (def pipeline : testPipelineConfig?.chain) {
+                def stages = []
+                for (def pipelineStage : testPipelineConfig?.chain) {
                     echo "Parsing JOB " + pipeline
 
-                    def confFile = yamlModule.getYAMLConfig(pipeline?.downstreamJob)
+                    def confFile = yamlModule.getYAMLConfig(pipelineStage?.downstreamJob)
                     def content = readYaml(file: "${confFile}")
 
-                    if (content.job."${pipeline?.type}".enabled) {
-                        echo "Adding ${pipeline?.downstreamJob} ${pipeline?.type} branch " + pipeline?.branch
+                    if (content.job."${pipelineStage?.type}".enabled) {
+                        echo "Adding ${pipelineStage?.downstreamJob} ${pipelineStage?.type} branch " + pipelineStage?.branch
                         def name
                         if (content.job.type == 'selenium') {
-                            name = "${content.job.type}/${pipeline.type}/${content.job.jobName}.${content.job.browser}.${content.job.environment}/${pipeline?.branch}"
+                            name = "${content.job.type}/${pipelineStage.type}/${content.job.jobName}.${content.job.browser}.${content.job.environment}/${pipelineStage?.branch}"
                         } else if (content.job.type == 'performance') {
-                            name = "${content.job.type}/${pipeline.type}/${content.job.jobName}.${content.job.environment}/${pipeline?.branch}"
+                            name = "${content.job.type}/${pipelineStage.type}/${content.job.jobName}.${content.job.environment}/${pipelineStage?.branch}"
                         }
                         echo "$mainFolder/$name"
                         def downstreamJob = "buildJob = build job: '$mainFolder/$name',propagate:false"
-                        echo pipelineStageTemplate.
+                        def stage = testPipelineStageTemplate.
                                 replaceAll(':description:', "pipeline").
                                 replaceAll(':downstreamJob:', downstreamJob)
+                        stages << stage
                     }
 
                 }
+                def pipe = getJobForConfig(testPipelineTemplate, null, JOB_TYPES.PIPELINE).replace(":jobList:", stages.join("\n"))
             }
         }
     }
