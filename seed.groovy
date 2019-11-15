@@ -55,6 +55,7 @@ node() {
     def job = null
     def multibranchPipelineTemplate, viewTemplate, pipelineTemplate, folderStructureTemplate = ''
     def jobConfigs = []
+    def testPipelineConfigs = []
     def configBaseFolder = 'config/projects'
     def browsers = []
 
@@ -92,15 +93,16 @@ node() {
     }
 
     stage('Read YAML files') {
-        def configFiles = yamlModule.getConfigsPaths()
-        for (def configFile : configFiles) {
-            echo " %% READING CONFIG FILE: ${configFile} %%"
-            def jobConfig = readYaml(file: "${configFile}")
+        def jobConfigFiles = yamlModule.getProjectConfigsPaths()
+        for (def jobConfigFile : jobConfigFiles) {
+            echo " %% READING CONFIG FILE: ${jobConfigFile} %%"
+            def jobConfig = readYaml(file: "${jobConfigFile}")
             jobConfigs << jobConfig
             yamlModule.printYAML(jobConfig)
-
         }
         browsers = readYaml(file: "${env.WORKSPACE_LOCAL}/config/selenium.yaml")?.browsers
+        def testPipelineConfigFiles = yamlModule.getPipelineConfigPaths()
+
     }
     stage('Prepare Performance Job Configurations') {
         for (jobConfig in jobConfigs) {
