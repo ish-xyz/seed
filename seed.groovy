@@ -52,7 +52,7 @@ node() {
     def repoURL = "https://github.com/gabrielstar/seed.git"
     final String mainFolder = ""
     def yamlModule, viewsModule, utilsModule = null
-    def multibranchPipelineTemplate, viewTemplate, pipelineTemplate, folderStructureTemplate = ''
+    def multibranchPipelineTemplate, viewTemplate, pipelineTemplate, pipelineStageTemplate, folderStructureTemplate = ''
     def jobConfigs = []
     def testPipelineConfigs = []
     def browsers = []
@@ -76,6 +76,7 @@ node() {
         multibranchPipelineTemplate = yamlModule.readTemplate('templates/multibranchPipeline.groovy')
         folderStructureTemplate = yamlModule.readTemplate('templates/folderStructureTemplate.groovy')
         pipelineTemplate = yamlModule.readTemplate('templates/pipeline.groovy')
+        pipelineStageTemplate = yamlModule.readTemplate('templates/pipelineStage.groovy')
         dslTestPipelineTemplate = yamlModule.readTemplate('templates/testPipeline.groovy')
         viewTemplate = yamlModule.readTemplate('templates/view.groovy')
 
@@ -160,6 +161,10 @@ node() {
                             name = "${content.job.type}/${pipeline.type}/${content.job.jobName}.${content.job.environment}/${pipeline?.branch}"
                         }
                         echo "$mainFolder/$name"
+                        def downstreamJob = "buildJob = build job: '$mainFolder/$name',propagate:false"
+                        echo pipelineStageTemplate.
+                                replaceAll(':description:', "pipeline").
+                                replaceAll(':downstreamJob:', downstreamJob)
                     }
 
                 }
