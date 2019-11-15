@@ -15,3 +15,12 @@ Features:
 - we can easily regenerate all jobs for multiple teams
 - we have the same development flow using standard git branchign model for selenium and performance tests
 - we can use existing jobs to create any kind of test pipeline (performance and selenium jobs) that can be exposed to be part of larger build, deploy, test pipeline
+
+
+How to Use?
+
+Install Jenkins with necessary plugins
+Configure YAML files as per examples (downstream repositories need to contain Jenkinsfile in repo root)
+In Jenkins
+    New Item -> Pipeline -> Pipeline Script from SCM -> Enter Your Repo URL -> Script Path : seed.groovy
+
