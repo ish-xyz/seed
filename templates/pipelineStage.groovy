@@ -1,6 +1,6 @@
 stage(':description:') {
     try {
-        ":downstreamJob:"
+        :downstreamJob:
         currentBuild.result = buildJob.getResult()
     } catch (Exception e) {
         currentBuild.result = failureStatus
