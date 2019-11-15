@@ -170,7 +170,7 @@ node() {
                     }
 
                 }
-                dslScripts << getJobForConfig(testPipelineTemplate, null, JOB_TYPES.PIPELINE).replace(":jobList:", stages.join("\n"))
+                dslScripts << getJobForConfig(testPipelineTemplate, testPipelineConfig, JOB_TYPES.PIPELINE).replace(":jobList:", stages.join("\n"))
 
             }
         }
