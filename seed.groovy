@@ -50,14 +50,14 @@ String serviceRoot = 'https://zensus-pl.corp.capgemini.com'
 
 node() {
     def repoURL = "https://github.com/gabrielstar/seed.git"
-    final String mainFolder = "tests_y"
+    final String mainFolder = ""
     def yamlModule, viewsModule, utilsModule = null
     def job = null
     def multibranchPipelineTemplate, viewTemplate, pipelineTemplate, folderStructureTemplate = ''
     def jobConfigs = []
     def testPipelineConfigs = []
-    def configBaseFolder = 'config/projects'
     def browsers = []
+    def config = ""
 
     stage("Clean Workspace") {
         cleanWs()
@@ -80,6 +80,26 @@ node() {
         dslTestPipelineTemplate = yamlModule.readTemplate('templates/testPipeline.groovy')
         viewTemplate = yamlModule.readTemplate('templates/view.groovy')
     }
+    stage('Read YAML files') {
+        def jobConfigFiles = yamlModule.getProjectConfigPaths()
+        for (def jobConfigFile : jobConfigFiles) {
+            echo " %% READING CONFIG FILE: ${jobConfigFile} %%"
+            def jobConfig = readYaml(file: "${jobConfigFile}")
+            jobConfigs << jobConfig
+            yamlModule.printYAML(jobConfig)
+        }
+        browsers = readYaml(file: "${env.WORKSPACE_LOCAL}/config/selenium.yaml")?.browsers
+        config = readYaml(file: "${env.WORKSPACE_LOCAL}/config/conf.yaml")
+        mainFolder = config?.mainFolder
+
+        def testPipelineConfigFiles = yamlModule.getPipelineConfigPaths()
+        for (def testPipelineConfigFile : testPipelineConfigFiles) {
+            echo " %% READING PIPELINE CONFIG FILE: ${testPipelineConfigFile} %%"
+            def testPipelineConfig = readYaml(file: "${testPipelineConfigFile}")
+            testPipelineConfigs << testPipelineConfig
+            yamlModule.printYAML(testPipelineConfig)
+        }
+    }
     stage("Create Folder Structure") {
         String folderDsl
         List folders = []
@@ -90,24 +110,6 @@ node() {
         folderDsl = folders.join("\n")
         writeFile(file: 'folderStructure.groovy', text: folderDsl)
         jobDsl failOnMissingPlugin: true, unstableOnDeprecation: true, targets: 'folderStructure.groovy'
-    }
-
-    stage('Read YAML files') {
-        def jobConfigFiles = yamlModule.getProjectConfigPaths()
-        for (def jobConfigFile : jobConfigFiles) {
-            echo " %% READING CONFIG FILE: ${jobConfigFile} %%"
-            def jobConfig = readYaml(file: "${jobConfigFile}")
-            jobConfigs << jobConfig
-            yamlModule.printYAML(jobConfig)
-        }
-        browsers = readYaml(file: "${env.WORKSPACE_LOCAL}/config/selenium.yaml")?.browsers
-        def testPipelineConfigFiles = yamlModule.getPipelineConfigPaths()
-        for (def testPipelineConfigFile : testPipelineConfigFiles) {
-            echo " %% READING PIPELINE CONFIG FILE: ${testPipelineConfigFile} %%"
-            def testPipelineConfig = readYaml(file: "${testPipelineConfigFile}")
-            testPipelineConfigs << testPipelineConfig
-            yamlModule.printYAML(testPipelineConfig)
-        }
     }
     stage('Prepare Performance Job Configurations') {
         for (jobConfig in jobConfigs) {
