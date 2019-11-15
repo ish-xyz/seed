@@ -164,7 +164,7 @@ node() {
                         echo "$mainFolder/$name"
                         def downstreamJob = "buildJob = build job: '$mainFolder/$name',propagate:false"
                         def stage = testPipelineStageTemplate.
-                                replaceAll(':description:', "pipeline").
+                                replaceAll(':description:', name).
                                 replaceAll(':downstreamJob:', downstreamJob)
                         stages << stage
                     }
