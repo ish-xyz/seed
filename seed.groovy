@@ -156,7 +156,7 @@ node() {
                         def name
                         if (content.job.type == 'selenium') {
                             name = "${content.job.type}/${pipeline.type}/${content.job.jobName}.${content.job.browser}.${content.job.environment}/${pipeline?.branch}"
-                        } else if (pipeline?.type == 'performance') {
+                        } else if (content.job.type == 'performance') {
                             name = "${content.job.type}/${pipeline.type}/${content.job.jobName}.${content.job.environment}/${pipeline?.branch}"
                         }
                         echo "$mainFolder/$name"
