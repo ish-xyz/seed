@@ -150,7 +150,10 @@ node() {
 
                     def confFile = yamlModule.getYAMLConfig(job)
                     def content = readYaml(file: "${confFile}")
-                    echo "content " + content
+                    if (content.job.regression.enabled) {
+                        echo "Adding branch " + job?.branch
+                    }
+
                 }
             }
         }
