@@ -13,6 +13,10 @@ def getYAMLConfigs(def extension, def root = 'projects', def excludes = 'default
     return configFilesPathList
 }
 
+def getYAMLConfig(def extension) {
+    return getYAMLConfigs(extension)?.first()
+}
+
 def getConfigsPaths(def extensionList = ['.yaml', '.yml'], def root = 'projects', def excludes = 'defaults.yaml') {
     def configFilesPathList = []
     for (String extension : extensionList) {

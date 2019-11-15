@@ -148,7 +148,7 @@ node() {
                 for (def job : testPipelineConfig?.chain) {
                     echo "JOB " + job
 
-                    def confFile = yamlModule.getYAMLConfigs(job)
+                    def confFile = yamlModule.getYAMLConfig(job)
                     def content = readYaml(file: "${confFile}")
                     echo "content " + content
                 }
