@@ -145,14 +145,21 @@ node() {
         }
         stage('Prepare Test Pipelines Job Configurations') {
             for (def testPipelineConfig : testPipelineConfigs) {
-                for (def job : testPipelineConfig?.chain) {
-                    echo "Parsing JOB " + job
+                for (def pipeline : testPipelineConfig?.chain) {
+                    echo "Parsing JOB " + pipeline
 
-                    def confFile = yamlModule.getYAMLConfig(job?.downstreamJob)
+                    def confFile = yamlModule.getYAMLConfig(pipeline?.downstreamJob)
                     def content = readYaml(file: "${confFile}")
 
-                    if (content.job."${job?.type}".enabled) {
-                        echo "Adding ${job?.downstreamJob} branch " + job?.branch
+                    if (content.job."${pipeline?.type}".enabled) {
+                        echo "Adding ${pipeline?.downstreamJob} ${pipeline?.type} branch " + pipeline?.branch
+                        def name
+                        if (pipeline?.type == 'regression') {
+                            name = "${content.job.type}/${pipeline.type}/${content.job.jobName}.${content.job.browser}.${content.job.environment}/${pipeline?.branch}"
+                        } else if (pipeline?.type == 'performance') {
+                            name = "${content.job.type}/${pipeline.type}/${content.job.jobName}.${content.job.environment}/${pipeline?.branch}"
+                        }
+                        echo "$mainFolder/$name"
                     }
 
                 }
