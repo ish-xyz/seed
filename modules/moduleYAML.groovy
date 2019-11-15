@@ -1,5 +1,5 @@
-def printYAML(def project) {
-    echo "Project name: " + project.job
+def printYAML(def yaml) {
+    echo "content: " + yaml
 }
 
 def readTemplate(def templatePath) {

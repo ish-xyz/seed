@@ -73,14 +73,18 @@ node() {
     stage("Prepare WS") {
         utilsModule.prepareWorkspace()
     }
-    stage('Read templates') {
+    stage('Read templates & General Configs') {
         multibranchPipelineTemplate = yamlModule.readTemplate('templates/multibranchPipeline.groovy')
         folderStructureTemplate = yamlModule.readTemplate('templates/folderStructureTemplate.groovy')
         pipelineTemplate = yamlModule.readTemplate('templates/pipeline.groovy')
         dslTestPipelineTemplate = yamlModule.readTemplate('templates/testPipeline.groovy')
         viewTemplate = yamlModule.readTemplate('templates/view.groovy')
+
+        browsers = readYaml(file: "${env.WORKSPACE_LOCAL}/config/selenium.yaml")?.browsers
+        config = readYaml(file: "${env.WORKSPACE_LOCAL}/config/conf.yaml")
+        mainFolder = config?.mainFolder
     }
-    stage('Read YAML files') {
+    stage('Read Job Config YAML files') {
         def jobConfigFiles = yamlModule.getProjectConfigPaths()
         for (def jobConfigFile : jobConfigFiles) {
             echo " %% READING CONFIG FILE: ${jobConfigFile} %%"
@@ -88,10 +92,8 @@ node() {
             jobConfigs << jobConfig
             yamlModule.printYAML(jobConfig)
         }
-        browsers = readYaml(file: "${env.WORKSPACE_LOCAL}/config/selenium.yaml")?.browsers
-        config = readYaml(file: "${env.WORKSPACE_LOCAL}/config/conf.yaml")
-        mainFolder = config?.mainFolder
-
+    }
+    stage('Read Pipeline Config YAML files') {
         def testPipelineConfigFiles = yamlModule.getPipelineConfigPaths()
         for (def testPipelineConfigFile : testPipelineConfigFiles) {
             echo " %% READING PIPELINE CONFIG FILE: ${testPipelineConfigFile} %%"
