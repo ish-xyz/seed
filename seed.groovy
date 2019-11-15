@@ -30,6 +30,7 @@ node() {
         testPipelineStageTemplate = yamlModule.readTemplate('templates/pipelineStage.groovy')
         viewTemplate = yamlModule.readTemplate('templates/view.groovy')
         browsers = readYaml(file: "${env.WORKSPACE_LOCAL}/config/selenium.yaml")?.browsers
+        config = readYaml(file: "${env.WORKSPACE_LOCAL}/config/conf.yaml")
         mainFolder = config?.mainFolder
     }
     stage('Read Job Config YAML files') {
