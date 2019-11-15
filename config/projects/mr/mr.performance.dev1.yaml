@@ -6,7 +6,7 @@ job:
   credentialsId: 'CORP-TU'
   enabled: true
   type: 'performance'
-  environment: 'DEV1'
+  environment: 'dev1'
   regression:
     branches:
       includes: '*develop'
