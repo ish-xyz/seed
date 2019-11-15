@@ -283,23 +283,23 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
 
 
     return jobTemplate.
-            replaceAll(':description:', jobConfig.job.description).
-            replaceAll(':URL:', jobConfig.job.url).
-            replaceAll(':orphanedOldItemsNumKeep:', jobConfig.job.orphanedOldItemsNumKeep as String).
-            replaceAll(':orphanedOldItemsDaysKeep:', jobConfig.job.orphanedOldItemsDaysKeep as String).
-            replaceAll(':oldItemsNumKeep:', jobConfig.job.oldItemsNumKeep as String).
-            replaceAll(':oldItemsDaysKeep:', jobConfig.job.oldItemsDaysKeep as String).
-            replaceAll(':oldArtifactsNumKeep:', jobConfig.job.oldArtifactsNumKeep as String).
-            replaceAll(':oldArtifactsDaysKeep:', jobConfig.job.oldArtifactsDaysKeep as String).
-            replaceAll(':jobName:', jobConfig.job.jobName.toLowerCase()).
+            replaceAll(':description:', jobConfig?.job.description).
+            replaceAll(':URL:', jobConfig?.job.url).
+            replaceAll(':orphanedOldItemsNumKeep:', jobConfig?.job.orphanedOldItemsNumKeep as String).
+            replaceAll(':orphanedOldItemsDaysKeep:', jobConfig?.job.orphanedOldItemsDaysKeep as String).
+            replaceAll(':oldItemsNumKeep:', jobConfig?.job.oldItemsNumKeep as String).
+            replaceAll(':oldItemsDaysKeep:', jobConfig?.job.oldItemsDaysKeep as String).
+            replaceAll(':oldArtifactsNumKeep:', jobConfig?.job.oldArtifactsNumKeep as String).
+            replaceAll(':oldArtifactsDaysKeep:', jobConfig?.job.oldArtifactsDaysKeep as String).
+            replaceAll(':jobName:', jobConfig?.job.jobName.toLowerCase()).
             replaceAll(':folder:', jobType.folder).
-            replaceAll(':scriptPath:', jobConfig.job.scriptPath).
-            replaceAll(':credentialsId:', jobConfig.job.credentialsId).
+            replaceAll(':scriptPath:', jobConfig?.job.scriptPath).
+            replaceAll(':credentialsId:', jobConfig?.job.credentialsId).
             replaceAll(':includes:', includes).
             replaceAll(':excludes:', excludes).
             replaceAll(':trigger:', trigger).
             replaceAll(':browser:', browser).
-            replaceAll(':env:', jobConfig.job.environment).
+            replaceAll(':env:', jobConfig?.job.environment).
             replace("..", ".") //empty replacements clean up
 }
 
