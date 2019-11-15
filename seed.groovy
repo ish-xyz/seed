@@ -102,7 +102,12 @@ node() {
         }
         browsers = readYaml(file: "${env.WORKSPACE_LOCAL}/config/selenium.yaml")?.browsers
         def testPipelineConfigFiles = yamlModule.getPipelineConfigPaths()
-
+        for (def testPipelineConfigFile : testPipelineConfigFiles) {
+            echo " %% READING PIPELINE CONFIG FILE: ${testPipelineConfigFile} %%"
+            def testPipelineConfig = readYaml(file: "${testPipelineConfigFile}")
+            testPipelineConfigs << testPipelineConfig
+            yamlModule.printYAML(testPipelineConfig)
+        }
     }
     stage('Prepare Performance Job Configurations') {
         for (jobConfig in jobConfigs) {

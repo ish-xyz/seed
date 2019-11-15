@@ -1,0 +1,3 @@
+chain:
+- mr.selenium.dev1.safari.yaml
+- mr.performance.dev1.yaml
