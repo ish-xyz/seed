@@ -170,8 +170,8 @@ node() {
                     }
 
                 }
-                def pipe = getJobForConfig(testPipelineTemplate, null, JOB_TYPES.PIPELINE).replace(":jobList:", stages.join("\n"))
-                echo pipe
+                dslScripts << getJobForConfig(testPipelineTemplate, null, JOB_TYPES.PIPELINE).replace(":jobList:", stages.join("\n"))
+
             }
         }
     }
