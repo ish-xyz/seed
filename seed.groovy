@@ -52,7 +52,6 @@ node() {
     def repoURL = "https://github.com/gabrielstar/seed.git"
     final String mainFolder = ""
     def yamlModule, viewsModule, utilsModule = null
-    def job = null
     def multibranchPipelineTemplate, viewTemplate, pipelineTemplate, folderStructureTemplate = ''
     def jobConfigs = []
     def testPipelineConfigs = []
@@ -143,6 +142,13 @@ node() {
                 }
             } else
                 echo "Not a selenium job: ${jobConfig.job.jobName}, ${JOB_TYPES.SELENIUM}"
+        }
+        stage('Prepare Test Pipelines Job Configurations') {
+            for (def testPipelineConfig : testPipelineConfigs) {
+                for (def job : testPipelineConfig?.chain) {
+                    echo "JOB " + job
+                }
+            }
         }
     }
 /*
