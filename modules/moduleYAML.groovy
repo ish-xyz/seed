@@ -7,7 +7,7 @@ def readTemplate(def templatePath) {
     return template
 }
 
-def getYAMLConfigs(def extension, def root, def excludes) {
+def getYAMLConfigs(def extension, def root = 'projects', def excludes = 'defaults.yaml') {
     def configFilesPathList = []
     configFilesPathList = findFiles(glob: "**/${root}/**/*${extension}", excludes: "**/${excludes}") //everywhere
     return configFilesPathList
