@@ -146,12 +146,13 @@ node() {
         stage('Prepare Test Pipelines Job Configurations') {
             for (def testPipelineConfig : testPipelineConfigs) {
                 for (def job : testPipelineConfig?.chain) {
-                    echo "JOB " + job
+                    echo "Parsing JOB " + job
 
-                    def confFile = yamlModule.getYAMLConfig(job)
-                    def content = readYaml(file: "${confFile}")
-                    if (content.job.regression.enabled) {
-                        echo "Adding branch " + job?.branch
+                    def confFile = yamlModule.getYAMLConfig(job?.downstreamJob)
+                    def content = readYaml(file: "${confFile}"
+
+                    if (content.job.downstreamJob."${job?.downstreamJob.type}".enabled) {
+                        echo "Adding ${job?.downstreamJob.type} branch " + job?.downstreamJob.branch
                     }
 
                 }
