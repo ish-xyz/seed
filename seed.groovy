@@ -152,7 +152,7 @@ node() {
                     def content = readYaml(file: "${confFile}")
 
                     if (content.job."${job?.type}".enabled) {
-                        echo "Adding ${job?.downstreamJob.type} branch " + job?.downstreamJob.branch
+                        echo "Adding ${job?.downstreamJob} branch " + job?.branch
                     }
 
                 }
