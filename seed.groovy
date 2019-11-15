@@ -279,21 +279,6 @@ String replaceVariablesForEnvironments(String env, String projectKey) {
     return env.replace("_ENV_", projectKey)
 }
 
-Map<String, JobConfig> repoJobConfigs = [:]
-
-//generates functional feature jobs for all branches, with default environment, testers can change
-@NonCPS
-def generateFeatureJobConfigs(String repoName, JobConfig repoConfig, def dslScriptTemplate, def browsers) {
-    List<JobConfig> configs = []
-    browsers.each { browser ->
-        def description = "This is the feature job for project ${repoName} for browser ${browser}. By default it runs all tests that are tagged with branch name e.g. @SAF-203. All feature branches get their own jobs. They need to be triggered manually."
-        configs.add(
-                getJobForConfig(dslScriptTemplate, repoConfig, JOB_TYPES.FEATURE, description, browser, "")
-        )
-    }
-    configs
-}
-
 
 @NonCPS
 def generateTestPipelinesJobConfigs(String repoName, JobConfig repoConfig, def dslTestPipelineTemplate, def dslPerformanceTemplate, def browsers, def ENVIRONMENTS, def excludedEnvironmentsForRegression) {
@@ -319,22 +304,6 @@ def generateTestPipelinesJobConfigs(String repoName, JobConfig repoConfig, def d
             )
         }
     }
-    configs
-}
-
-@NonCPS
-def generateStandaloneJobConfigs(String repoName, JobConfig repoConfig, def dslScriptPipelineTemplate) {
-    def configs = []
-    def description = ""
-    configs.add(
-            dslScriptPipelineTemplate.
-                    replaceAll(':folder:', JOB_TYPES.STANDALONE.folder).
-                    replaceAll(':description:', description).
-                    replaceAll(':URL:', repoConfig['URL']).
-                    replaceAll(':jobName:', repoConfig['jobName']).
-                    replaceAll(':scriptPath:', 'Jenkinsfile').
-                    replaceAll(':credentialsId:', repoConfig['credentialsId'])
-    )
     configs
 }
 
