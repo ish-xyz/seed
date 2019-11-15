@@ -1,5 +1,5 @@
 chain:
-- mr.selenium.dev1.safari.yaml
+- mr.selenium.dev1.safari.yaml:
   branch: develop
-- mr.performance.dev1.yaml
+- mr.performance.dev1.yaml:
   branch: develop
