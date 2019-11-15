@@ -1,3 +1,6 @@
+job:
+  jobName:
+    mr.dev1
 chain:
 - downstreamJob: mr.selenium.dev1.safari.yaml
   type: regression
