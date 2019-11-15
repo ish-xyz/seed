@@ -1,14 +1,10 @@
-def dslScripts = []
-def credentialsId = 'CORP-TU'
-String serviceRoot = 'https://zensus-pl.corp.capgemini.com'
-
 node() {
-    def repoURL = "https://github.com/gabrielstar/seed.git"
-    final String mainFolder = ""
-    def yamlModule, viewsModule, utilsModule = null
-    def multibranchPipelineTemplate, viewTemplate, pipelineTemplate, pipelineStageTemplate, folderStructureTemplate = ''
-    def jobConfigs = []
-    def testPipelineConfigs = []
+
+    def dslScripts = []
+    def repoURL = 'https://github.com/gabrielstar/seed.git'
+    def mainFolder = '', yamlModule = '', viewsModule = '', utilsModule = ''
+    def multibranchPipelineTemplate = '', viewTemplate = '', pipelineTemplate = '', pipelineStageTemplate = '', folderStructureTemplate = ''
+    def jobConfigs = [], testPipelineConfigs = []
     def browsers = []
     def config = ""
 
@@ -23,19 +19,17 @@ node() {
         viewsModule = load "modules/moduleViews.groovy"
         utilsModule = load "modules/moduleUtils.groovy"
     }
-    stage("Prepare WS") {
+    stage("Prepare Workspace") {
         utilsModule.prepareWorkspace()
     }
-    stage('Read templates & General Configs') {
+    stage('Read Templates & General Config') {
         multibranchPipelineTemplate = yamlModule.readTemplate('templates/multibranchPipeline.groovy')
         folderStructureTemplate = yamlModule.readTemplate('templates/folderStructureTemplate.groovy')
         pipelineTemplate = yamlModule.readTemplate('templates/pipeline.groovy')
         testPipelineTemplate = yamlModule.readTemplate('templates/testPipeline.groovy')
         testPipelineStageTemplate = yamlModule.readTemplate('templates/pipelineStage.groovy')
         viewTemplate = yamlModule.readTemplate('templates/view.groovy')
-
         browsers = readYaml(file: "${env.WORKSPACE_LOCAL}/config/selenium.yaml")?.browsers
-        config = readYaml(file: "${env.WORKSPACE_LOCAL}/config/conf.yaml")
         mainFolder = config?.mainFolder
     }
     stage('Read Job Config YAML files') {
