@@ -149,7 +149,7 @@ node() {
                     echo "Parsing JOB " + job
 
                     def confFile = yamlModule.getYAMLConfig(job?.downstreamJob)
-                    def content = readYaml(file: "${confFile}"
+                    def content = readYaml(file: "${confFile}")
 
                     if (content.job.downstreamJob."${job?.downstreamJob.type}".enabled) {
                         echo "Adding ${job?.downstreamJob.type} branch " + job?.downstreamJob.branch
