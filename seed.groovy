@@ -154,7 +154,7 @@ node() {
                     if (content.job."${pipeline?.type}".enabled) {
                         echo "Adding ${pipeline?.downstreamJob} ${pipeline?.type} branch " + pipeline?.branch
                         def name
-                        if (pipeline?.type == 'regression') {
+                        if (content.job.type == 'selenium') {
                             name = "${content.job.type}/${pipeline.type}/${content.job.jobName}.${content.job.browser}.${content.job.environment}/${pipeline?.branch}"
                         } else if (pipeline?.type == 'performance') {
                             name = "${content.job.type}/${pipeline.type}/${content.job.jobName}.${content.job.environment}/${pipeline?.branch}"
