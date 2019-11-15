@@ -1,52 +1,6 @@
-class JobConfig implements Serializable {
-    def URL
-    //non-existing branches
-    def orphanedOldItemsNumKeep = '3'
-    def orphanedOldItemsDaysKeep = '1'
-    //e.g. for develop regression
-    def oldItemsNumKeep = '10'
-    def oldItemsDaysKeep = '10'
-    def oldArtifactsNumKeep = '10'
-    def oldArtifactsDaysKeep = '10'
-
-    protected String jobName
-    protected String scriptPath
-    protected String credentialsId
-    def performanceJobs = []
-
-}
-
-class PerformanceJobConfig extends JobConfig implements Serializable {
-
-}
-
-//performance feature & tests put inside because number of jobs per view grew too large
-public enum JOB_TYPES {
-
-
-    SELENIUM("selenium"), PERFORMANCE("performance"), SELENIUM_FEATURE("selenium/feature"), SELENIUM_REGRESSION("selenium/regression"), SELENIUM_STANDALONE("selenium/standalone"), PIPELINE("pipeline"),
-    PERFORMANCE_REGRESSION("performance/regression"), PERFORMANCE_FEATURE("performance/feature")
-
-    String folder
-    String name
-    String rootFolder = "tests_y"
-
-    private JOB_TYPES(String folder) {
-        this.folder = "$rootFolder/$folder"
-        this.name = folder
-    }
-
-    @NonCPS
-    public String toString() {
-        return this.name
-    }
-}
-
 def dslScripts = []
 def credentialsId = 'CORP-TU'
 String serviceRoot = 'https://zensus-pl.corp.capgemini.com'
-
-
 
 node() {
     def repoURL = "https://github.com/gabrielstar/seed.git"
@@ -175,24 +129,6 @@ node() {
             }
         }
     }
-/*
-stage('Prepare Job Configurations') {
-    repoJobConfigs.each { String repoName, JobConfig repoConfig ->
-
-        echo "Generating integrated test pipeline jobs configs"
-        dslScripts += (generateTestPipelinesJobConfigs(
-                repoName,
-                repoConfig,
-                dslTestPipelineTemplate,
-                multibranchPipeline.groovy,
-                pipelineBrowsers,
-                ENVIRONMENTS,
-                excludedEnvironmentsForRegression
-        ))
-
-    }
-
-}*/
     stage('Prepare custom Views') {
         dslScripts.addAll(viewsModule.createViewsDSL(viewTemplate, jobConfigs, mainFolder, browsers))
     }
@@ -209,39 +145,26 @@ stage('Prepare Job Configurations') {
 }
 
 //###################### END ############################
-@NonCPS
-def getRegressionJobFor(String projectName, String browser, String env, String branch, boolean isPerformance) {
-    def jobRelativePath
-    def jobRoot
-    def downstreamJob
-    def jobDescription
-    if (isPerformance) {
-        jobRoot = "tests/performance/regression/"
-        jobDescription = "Performance tests for $projectName"
-        jobRelativePath = "${projectName.toLowerCase()}.${replaceVariablesForEnvironments(env, projectName)}/$branch"
 
-    } else {
-        jobRoot = "tests/regression/"
-        jobDescription = "Functional Tests Regression with $browser for $projectName"
-        jobRelativePath = "${projectName.toLowerCase()}.$browser.${replaceVariablesForEnvironments(env, projectName)}/$branch"
+public enum JOB_TYPES {
+
+
+    SELENIUM("selenium"), PERFORMANCE("performance"), SELENIUM_FEATURE("selenium/feature"), SELENIUM_REGRESSION("selenium/regression"), SELENIUM_STANDALONE("selenium/standalone"), PIPELINE("pipeline"),
+    PERFORMANCE_REGRESSION("performance/regression"), PERFORMANCE_FEATURE("performance/feature")
+
+    String folder
+    String name
+    String rootFolder = "tests_y"
+
+    private JOB_TYPES(String folder) {
+        this.folder = "$rootFolder/$folder"
+        this.name = folder
     }
 
-    downstreamJob = "buildJob = build job: '$jobRoot$jobRelativePath',propagate:false"
-
-    return """
-        stage('$jobDescription') {
-            try{
-                $downstreamJob
-                currentBuild.result = buildJob.getResult()
-            }catch(Exception e){
-                currentBuild.result = failureStatus
-            }
-            if(currentBuild.result.contains(failureStatus)){
-                print "Stopping pipeline as test have failed"
-                error("Tests failed")
-            }
-        }
-    """
+    @NonCPS
+    public String toString() {
+        return this.name
+    }
 }
 
 @NonCPS
@@ -305,40 +228,6 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
 }
 
 @NonCPS
-String replaceVariablesForEnvironments(String env, String projectKey) {
-    return env.replace("_ENV_", projectKey)
-}
-
-
-@NonCPS
-def generateTestPipelinesJobConfigs(String repoName, JobConfig repoConfig, def dslTestPipelineTemplate, def dslPerformanceTemplate, def browsers, def ENVIRONMENTS, def excludedEnvironmentsForRegression) {
-    def configs = []
-    ENVIRONMENTS.each {
-        description = "Test Pipelines for integration with Production Line"
-        def env = replaceVariablesForEnvironments(it.env, repoConfig["jobName"])
-        if (!(env in excludedEnvironmentsForRegression)) {
-            configs.add(
-                    getJobForConfig(dslTestPipelineTemplate, repoConfig, JOB_TYPES.PIPELINE, description, "", env)
-                            .replaceAll(":jobList:",
-                            browsers.collect { browser ->
-                                getRegressionJobFor(repoConfig['jobName'], browser, it.env, "develop", false)
-                            }
-                            .join("\n ")
-                                    .plus("\n")
-                                    .plus(
-                                    repoConfig.performanceJobs.collect { def performanceRepoConfig ->
-                                        getRegressionJobFor(performanceRepoConfig['jobName'], "", env, "develop", true)
-                                    }.join("\n")
-                            )
-                    )
-            )
-        }
-    }
-    configs
-}
-
-
-@NonCPS
 def generatePerformanceJobConfigs(def dslPerformanceTemplate, def jobConfig, JOB_TYPES jobType) {
     return getJobForConfig(dslPerformanceTemplate, jobConfig, jobType)
 }
@@ -347,6 +236,5 @@ def generatePerformanceJobConfigs(def dslPerformanceTemplate, def jobConfig, JOB
 def generateSeleniumJobConfigs(def dslSeleniumTemplate, def jobConfig, JOB_TYPES jobType) {
     return getJobForConfig(dslSeleniumTemplate, jobConfig, jobType)
 }
-
 
 return this
