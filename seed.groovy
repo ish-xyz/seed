@@ -93,7 +93,7 @@ node() {
     }
 
     stage('Read YAML files') {
-        def jobConfigFiles = yamlModule.getProjectConfigsPaths()
+        def jobConfigFiles = yamlModule.getProjectConfigPaths()
         for (def jobConfigFile : jobConfigFiles) {
             echo " %% READING CONFIG FILE: ${jobConfigFile} %%"
             def jobConfig = readYaml(file: "${jobConfigFile}")
