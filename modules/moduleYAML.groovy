@@ -25,7 +25,8 @@ def getProjectConfigPaths() {
     return getConfigsPaths()
 }
 
-get getPipelineConfigPaths() {
+def getPipelineConfigPaths() {
     return getConfigsPaths(['.yaml', '.yml'], "pipelines")
 }
+
 return this
