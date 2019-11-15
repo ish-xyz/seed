@@ -284,7 +284,7 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
 
     return jobTemplate.
             replaceAll(':description:', jobConfig?.job?.description).
-            replaceAll(':URL:', jobConfig?.job.url).
+            replaceAll(':URL:', jobConfig?.job?.url).
             replaceAll(':orphanedOldItemsNumKeep:', jobConfig?.job?.orphanedOldItemsNumKeep as String).
             replaceAll(':orphanedOldItemsDaysKeep:', jobConfig?.job?.orphanedOldItemsDaysKeep as String).
             replaceAll(':oldItemsNumKeep:', jobConfig?.job?.oldItemsNumKeep as String).
