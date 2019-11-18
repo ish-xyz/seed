@@ -8,4 +8,6 @@ job:
     enabled: true
   feature:
     enabled: true
+  standalone:
+    enabled: true
   browser: safari

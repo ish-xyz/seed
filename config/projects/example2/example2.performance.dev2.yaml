@@ -2,7 +2,6 @@ job:
   url: 'https://zensus-pl.corp.capgemini.com/gitlab/TestTools/ZENSUSTEMPLATE_JMETER.git'
   jobName: 'example2'
   description: 'Description of the job'
-  enabled: true
   type: 'performance'
   environment: 'dev2'
   regression:
