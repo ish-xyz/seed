@@ -8,7 +8,7 @@ job:
   regression:
     branches:
       includes: '*develop'
-      excludes: 'foo'
+      excludes: 'boo'
     enabled: true
     trigger: 'periodic(66)'
   feature:

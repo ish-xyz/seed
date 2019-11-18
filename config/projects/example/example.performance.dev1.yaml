@@ -10,7 +10,6 @@ job:
   regression:
     branches:
       includes: '*develop'
-      excludes: 'foo'
     enabled: true
     trigger: 'periodic(120)'
   feature:
