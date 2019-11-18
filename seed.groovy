@@ -1,4 +1,6 @@
 node() {
+
+    final String MODULES_DIR = "modules", TEMPLATES_DIR = "templates", CONFIG_DIR = "config"
     def dslScripts = []
     def repoURL = 'https://github.com/gabrielstar/seed.git'
     def mainFolder = '', yamlModule = '', viewsModule = '', utilsModule = ''
@@ -14,22 +16,22 @@ node() {
         git branch: 'master', credentialsId: '', url: repoURL
     }
     stage('Init Modules') {
-        yamlModule = load "modules/moduleYAML.groovy"
-        viewsModule = load "modules/moduleViews.groovy"
-        utilsModule = load "modules/moduleUtils.groovy"
+        yamlModule = load "${MODULES_DIR}/moduleYAML.groovy"
+        viewsModule = load "${MODULES_DIR}/moduleViews.groovy"
+        utilsModule = load "${MODULES_DIR}/moduleUtils.groovy"
     }
     stage("Prepare Workspace") {
         utilsModule.prepareWorkspace()
     }
     stage('Read Templates & General Config') {
-        multibranchPipelineTemplate = yamlModule.readTemplate('templates/multibranchPipeline.groovy')
-        folderStructureTemplate = yamlModule.readTemplate('templates/folderStructureTemplate.groovy')
-        pipelineTemplate = yamlModule.readTemplate('templates/pipeline.groovy')
-        testPipelineTemplate = yamlModule.readTemplate('templates/testPipeline.groovy')
-        testPipelineStageTemplate = yamlModule.readTemplate('templates/pipelineStage.groovy')
-        viewTemplate = yamlModule.readTemplate('templates/view.groovy')
-        browsers = readYaml(file: "${env.WORKSPACE_LOCAL}/config/selenium.yaml")?.browsers
-        config = readYaml(file: "${env.WORKSPACE_LOCAL}/config/conf.yaml")
+        multibranchPipelineTemplate = yamlModule.readTemplate("${TEMPLATES_DIR}/multibranchPipeline.groovy")
+        folderStructureTemplate = yamlModule.readTemplate("${TEMPLATES_DIR}}/folderStructureTemplate.groovy")
+        pipelineTemplate = yamlModule.readTemplate("${TEMPLATES_DIR}}/pipeline.groovy")
+        testPipelineTemplate = yamlModule.readTemplate("${TEMPLATES_DIR}/testPipeline.groovy")
+        testPipelineStageTemplate = yamlModule.readTemplate("${TEMPLATES_DIR}/pipelineStage.groovy")
+        viewTemplate = yamlModule.readTemplate("${TEMPLATES_DIR}/view.groovy")
+        browsers = readYaml(file: "${env.WORKSPACE_LOCAL}/${CONFIG_DIR}/selenium.yaml")?.browsers
+        config = readYaml(file: "${env.WORKSPACE_LOCAL}/${CONFIG_DIR}/conf.yaml")
         mainFolder = config?.mainFolder
         assert mainFolder == JOB_TYPES.SELENIUM.rootFolder
     }
@@ -52,14 +54,12 @@ node() {
         }
     }
     stage("Create Folder Structure") {
-        String folderDsl
         List folders = []
         folders.add(folderStructureTemplate.replaceAll(':folder:', mainFolder))
         JOB_TYPES.each {
             folders.add(folderStructureTemplate.replaceAll(':folder:', it.folder))
         }
-        folderDsl = folders.join("\n")
-        writeFile(file: 'folderStructure.groovy', text: folderDsl)
+        writeFile(file: 'folderStructure.groovy', text: folders.join("\n"))
         jobDsl failOnMissingPlugin: true, unstableOnDeprecation: true, targets: 'folderStructure.groovy'
     }
     stage('Prepare Performance Job Configurations') {
@@ -72,9 +72,7 @@ node() {
                 if (jobConfig.job.feature.enabled as boolean) {
                     dslScripts << generatePerformanceJobConfigs(multibranchPipelineTemplate, jobConfig, JOB_TYPES.PERFORMANCE_FEATURE)
                 }
-                echo "Excluded branches: " + jobConfig.job.feature.excludedBranches
-            } else
-                echo "Not a performance job: ${jobConfig.job.jobName}, ${JOB_TYPES.PERFORMANCE}"
+            }
         }
     }
     stage('Prepare Selenium Job Configurations') {
@@ -90,8 +88,7 @@ node() {
                 if (jobConfig.job.standalone.enabled as boolean) {
                     dslScripts << generateSeleniumJobConfigs(pipelineTemplate, jobConfig, JOB_TYPES.SELENIUM_STANDALONE)
                 }
-            } else
-                echo "Not a selenium job: ${jobConfig.job.jobName}, ${JOB_TYPES.SELENIUM}"
+            }
         }
         stage('Prepare Test Pipelines Job Configurations') {
             for (def testPipelineConfig : testPipelineConfigs) {
@@ -174,33 +171,22 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
             includes = jobConfig.job.standalone.branches.includes
             break;
         case JOB_TYPES.SELENIUM_REGRESSION:
+        case JOB_TYPES.SELENIUM_FEATURE:
             browser = jobConfig?.job?.browser
             includes = jobConfig.job.regression.branches.includes
             excludes = jobConfig.job.regression.branches.excludes
             trigger = jobConfig.job.regression.trigger
             break;
-        case JOB_TYPES.SELENIUM_FEATURE:
-            browser = jobConfig?.job?.browser
-            includes = jobConfig.job.feature.branches.includes
-            excludes = jobConfig.job.feature.branches.excludes
-            trigger = jobConfig.job.feature.trigger
-            break;
         case JOB_TYPES.PERFORMANCE_FEATURE:
-            includes = jobConfig.job.feature.branches.includes
-            excludes = jobConfig.job.feature.branches.excludes
-            trigger = jobConfig.job.feature.trigger
-            break;
         case JOB_TYPES.PERFORMANCE_REGRESSION:
             includes = jobConfig.job.regression.branches.includes
             excludes = jobConfig.job.regression.branches.excludes
             trigger = jobConfig.job.regression.trigger
             break;
         case JOB_TYPES.PIPELINE:
-
             break
 
     }
-
 
     return jobTemplate.
             replaceAll(':description:', jobConfig?.job?.description ?: "").
