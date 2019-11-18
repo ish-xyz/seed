@@ -4,4 +4,8 @@ job:
   description: 'Description of the job'
   type: 'selenium'
   environment: 'dev1'
+  regression:
+    enabled: true
+  feature:
+    enabled: true
   browser: safari

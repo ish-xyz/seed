@@ -9,18 +9,15 @@ job:
     branches:
       includes: '*develop'
       excludes: 'boo'
-    enabled: true
     trigger: 'periodic(66)'
   feature:
     branches:
       includes: '*'
       excludes: 'master'
-    enabled: true
     trigger: 'periodic(66)'
   standalone:
     branches:
       includes: 'master'
-    enabled: true
   orphanedOldItemsNumKeep: 6
   orphanedOldItemsDaysKeep: 6
   oldItemsNumKeep: 6

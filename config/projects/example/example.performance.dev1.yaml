@@ -4,3 +4,7 @@ job:
   description: 'Description of the job'
   type: 'performance'
   environment: 'dev1'
+  regression:
+    enabled: true
+  feature:
+    enabled: true

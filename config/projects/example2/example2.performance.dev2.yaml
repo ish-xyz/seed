@@ -5,3 +5,7 @@ job:
   enabled: true
   type: 'performance'
   environment: 'dev2'
+  regression:
+    enabled: true
+  feature:
+    enabled: true
