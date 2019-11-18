@@ -153,7 +153,7 @@ enum JOB_TYPES {
     String rootFolder
 
     private JOB_TYPES(String folder) {
-        def rootFolder = config = readYaml(file: "${env.WORKSPACE_LOCAL}/config/conf.yaml")?.mainFolder
+        def rootFolder = config = readYaml(file: "config/conf.yaml")?.mainFolder
         this.folder = "$rootFolder/$folder"
         this.name = folder
     }
