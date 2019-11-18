@@ -1,5 +1,4 @@
 node() {
-
     def dslScripts = []
     def repoURL = 'https://github.com/gabrielstar/seed.git'
     def mainFolder = '', yamlModule = '', viewsModule = '', utilsModule = ''
@@ -32,6 +31,7 @@ node() {
         browsers = readYaml(file: "${env.WORKSPACE_LOCAL}/config/selenium.yaml")?.browsers
         config = readYaml(file: "${env.WORKSPACE_LOCAL}/config/conf.yaml")
         mainFolder = config?.mainFolder
+        assert mainFolder == JOB_TYPES.rootFolder
     }
     stage('Read Job Config YAML files') {
         def jobConfigFiles = yamlModule.getProjectConfigPaths()
@@ -141,7 +141,6 @@ node() {
 
 //###################### END ############################
 
-
 enum JOB_TYPES {
 
 
@@ -150,10 +149,9 @@ enum JOB_TYPES {
 
     String folder
     String name
-    String rootFolder
+    String rootFolder = "tests_y"
 
     private JOB_TYPES(String folder) {
-        def rootFolder = readYaml(file: "config/conf.yaml")?.mainFolder
         this.folder = "$rootFolder/$folder"
         this.name = folder
     }
@@ -163,6 +161,7 @@ enum JOB_TYPES {
         return this.name
     }
 }
+
 
 @NonCPS
 def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
