@@ -92,32 +92,22 @@ node() {
         }
         stage('Prepare Test Pipelines Job Configurations') {
             for (def testPipelineConfig : testPipelineConfigs) {
-                def stages = []
-                for (def pipelineStage : testPipelineConfig?.chain) {
-                    echo "Parsing JOB " + pipeline
-
-                    def confFile = yamlModule.getYAMLConfig(pipelineStage?.downstreamJob)
-                    def content = readYaml(file: "${confFile}")
-
-                    if (content.job."${pipelineStage?.type}".enabled) {
-                        echo "Adding ${pipelineStage?.downstreamJob} ${pipelineStage?.type} branch " + pipelineStage?.branch
+                def testPipelineStages = []
+                for (def testPipelineStageConfig : testPipelineConfig?.chain) {
+                    def confFile = yamlModule.getYAMLConfig(testPipelineStageConfig?.downstreamJob)
+                    def jobConfig = readYaml(file: "${confFile}")
+                    if (jobConfig.job."${testPipelineStageConfig?.type}".enabled) {
+                        echo "Adding ${testPipelineStageConfig?.downstreamJob} ${testPipelineStageConfig?.type} branch " + testPipelineStageConfig?.branch
                         def name
-                        if (content.job.type == 'selenium') {
-                            name = "${content.job.type}/${pipelineStage.type}/${content.job.jobName}.${content.job.browser}.${content.job.environment}/${pipelineStage?.branch}"
-                        } else if (content.job.type == 'performance') {
-                            name = "${content.job.type}/${pipelineStage.type}/${content.job.jobName}.${content.job.environment}/${pipelineStage?.branch}"
+                        if (jobConfig.job.type == 'selenium') {
+                            name = "${jobConfig.job.type}/${testPipelineStageConfig.type}/${jobConfig.job.jobName}.${jobConfig.job.browser}.${jobConfig.job.environment}/${testPipelineStageConfig?.branch}"
+                        } else if (jobConfig.job.type == 'performance') {
+                            name = "${jobConfig.job.type}/${testPipelineStageConfig.type}/${jobConfig.job.jobName}.${jobConfig.job.environment}/${testPipelineStageConfig?.branch}"
                         }
-                        echo "$mainFolder/$name"
-                        def downstreamJob = "buildJob = build job: '$mainFolder/$name',propagate:false"
-                        def stage = testPipelineStageTemplate.
-                                replaceAll(':description:', name).
-                                replaceAll(':downstreamJob:', downstreamJob)
-                        stages << stage
+                        testPipelineStages << getTestPipelineStageJobForConfig(testPipelineStageTemplate, name, mainFolder)
                     }
-
                 }
-                dslScripts << getJobForConfig(testPipelineTemplate, testPipelineConfig, JOB_TYPES.PIPELINE).replace(":jobList:", stages.join("\n"))
-
+                dslScripts << getJobForConfig(testPipelineTemplate, testPipelineConfig, JOB_TYPES.PIPELINE).replace(":jobList:", testPipelineStages.join("\n"))
             }
         }
     }
@@ -139,7 +129,6 @@ node() {
 //###################### END ############################
 
 enum JOB_TYPES {
-
 
     SELENIUM("selenium"), PERFORMANCE("performance"), SELENIUM_FEATURE("selenium/feature"), SELENIUM_REGRESSION("selenium/regression"), SELENIUM_STANDALONE("selenium/standalone"), PIPELINE("pipeline"),
     PERFORMANCE_REGRESSION("performance/regression"), PERFORMANCE_FEATURE("performance/feature")
@@ -217,6 +206,15 @@ def generatePerformanceJobConfigs(def dslPerformanceTemplate, def jobConfig, JOB
 @NonCPS
 def generateSeleniumJobConfigs(def dslSeleniumTemplate, def jobConfig, JOB_TYPES jobType) {
     return getJobForConfig(dslSeleniumTemplate, jobConfig, jobType)
+}
+
+@NonCPS
+def getTestPipelineStageJobForConfig(String jobTemplate, def name, def mainFolder) {
+    def downstreamJob = "buildJob = build job: '$mainFolder/$name',propagate:false"
+    return jobTemplate.
+            replaceAll(':description:', name).
+            replaceAll(':downstreamJob:', downstreamJob)
+
 }
 
 return this
