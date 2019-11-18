@@ -25,8 +25,8 @@ node() {
     }
     stage('Read Templates & General Config') {
         multibranchPipelineTemplate = yamlModule.readTemplate("${TEMPLATES_DIR}/multibranchPipeline.groovy")
-        folderStructureTemplate = yamlModule.readTemplate("${TEMPLATES_DIR}}/folderStructureTemplate.groovy")
-        pipelineTemplate = yamlModule.readTemplate("${TEMPLATES_DIR}}/pipeline.groovy")
+        folderStructureTemplate = yamlModule.readTemplate("${TEMPLATES_DIR}/folderStructureTemplate.groovy")
+        pipelineTemplate = yamlModule.readTemplate("${TEMPLATES_DIR}/pipeline.groovy")
         testPipelineTemplate = yamlModule.readTemplate("${TEMPLATES_DIR}/testPipeline.groovy")
         testPipelineStageTemplate = yamlModule.readTemplate("${TEMPLATES_DIR}/pipelineStage.groovy")
         viewTemplate = yamlModule.readTemplate("${TEMPLATES_DIR}/view.groovy")
