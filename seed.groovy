@@ -31,7 +31,7 @@ node() {
         browsers = readYaml(file: "${env.WORKSPACE_LOCAL}/config/selenium.yaml")?.browsers
         config = readYaml(file: "${env.WORKSPACE_LOCAL}/config/conf.yaml")
         mainFolder = config?.mainFolder
-        assert mainFolder == JOB_TYPES.rootFolder
+        assert mainFolder == JOB_TYPES.SELENIUM.rootFolder
     }
     stage('Read Job Config YAML files') {
         def jobConfigFiles = yamlModule.getProjectConfigPaths()
