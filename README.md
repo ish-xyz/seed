@@ -5,7 +5,7 @@ This is Jenkins seed job for performance and selenium tests
 Based on YAML file configurations it can generate multibranch pipelines for selenium and performance tests (jmeter), that are based of a template containing
 Jenkinsfile. It generates:
 
-- regression jobs (jobs that are run regularly based on cron expression and should contains current stable tests)
+- regression jobs (jobs that are run regularly based on cron expression and should contain current stable tests)
 - feature jobs (jobs that are usually triggered manuall during development and fixes of new tests)
 - test pipelines (any kind of job chain that we can configure based of existing jobs)
 
