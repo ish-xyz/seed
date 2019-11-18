@@ -1,2 +1,7 @@
 mainFolder: 'tests_y'
 projectsFolder: 'config/projects'
+browsers:
+- ie
+- firefox
+- chrome
+- safari

@@ -7,7 +7,7 @@ node() {
     def multibranchPipelineTemplate = '', viewTemplate = '', pipelineTemplate = '', pipelineStageTemplate = '', folderStructureTemplate = ''
     def jobConfigs = [], testPipelineConfigs = []
     def browsers = []
-    def config = ""
+    def config = "", jobConfigDefaults = ""
 
     stage("Clean Workspace") {
         cleanWs()
@@ -30,10 +30,11 @@ node() {
         testPipelineTemplate = yamlModule.readTemplate("${TEMPLATES_DIR}/testPipeline.groovy")
         testPipelineStageTemplate = yamlModule.readTemplate("${TEMPLATES_DIR}/pipelineStage.groovy")
         viewTemplate = yamlModule.readTemplate("${TEMPLATES_DIR}/view.groovy")
-        browsers = readYaml(file: "${env.WORKSPACE_LOCAL}/${CONFIG_DIR}/selenium.yaml")?.browsers
         config = readYaml(file: "${env.WORKSPACE_LOCAL}/${CONFIG_DIR}/conf.yaml")
         mainFolder = config?.mainFolder
+        browsers = config?.browsers
         assert mainFolder == JOB_TYPES.SELENIUM.rootFolder
+        jobConfigDefaults = readYaml(file: "${env.WORKSPACE_LOCAL}/${CONFIG_DIR}/defaults.yaml")
     }
     stage('Read Job Config YAML files') {
         def jobConfigFiles = yamlModule.getProjectConfigPaths()
@@ -67,10 +68,10 @@ node() {
             if (jobConfig.job.type == JOB_TYPES.PERFORMANCE.toString()) {
                 echo "Building ${JOB_TYPES.PERFORMANCE} job config for ${jobConfig.job.jobName}"
                 if (jobConfig.job.regression.enabled as boolean) {
-                    dslScripts << generatePerformanceJobConfigs(multibranchPipelineTemplate, jobConfig, JOB_TYPES.PERFORMANCE_REGRESSION)
+                    dslScripts << generatePerformanceJobConfigs(multibranchPipelineTemplate, jobConfig, jobConfigDefaults, JOB_TYPES.PERFORMANCE_REGRESSION)
                 }
                 if (jobConfig.job.feature.enabled as boolean) {
-                    dslScripts << generatePerformanceJobConfigs(multibranchPipelineTemplate, jobConfig, JOB_TYPES.PERFORMANCE_FEATURE)
+                    dslScripts << generatePerformanceJobConfigs(multibranchPipelineTemplate, jobConfig, jobConfigDefaults, JOB_TYPES.PERFORMANCE_FEATURE)
                 }
             }
         }
@@ -80,13 +81,13 @@ node() {
             if (jobConfig.job.type == JOB_TYPES.SELENIUM.toString()) {
                 echo "Building ${JOB_TYPES.SELENIUM} job config for ${jobConfig.job.jobName}"
                 if (jobConfig.job.regression.enabled as boolean) {
-                    dslScripts << generateSeleniumJobConfigs(multibranchPipelineTemplate, jobConfig, JOB_TYPES.SELENIUM_REGRESSION)
+                    dslScripts << generateSeleniumJobConfigs(multibranchPipelineTemplate, jobConfig, jobConfigDefaults, JOB_TYPES.SELENIUM_REGRESSION)
                 }
                 if (jobConfig.job.feature.enabled as boolean) {
-                    dslScripts << generateSeleniumJobConfigs(multibranchPipelineTemplate, jobConfig, JOB_TYPES.SELENIUM_FEATURE)
+                    dslScripts << generateSeleniumJobConfigs(multibranchPipelineTemplate, jobConfig, jobConfigDefaults, JOB_TYPES.SELENIUM_FEATURE)
                 }
                 if (jobConfig.job.standalone.enabled as boolean) {
-                    dslScripts << generateSeleniumJobConfigs(pipelineTemplate, jobConfig, JOB_TYPES.SELENIUM_STANDALONE)
+                    dslScripts << generateSeleniumJobConfigs(pipelineTemplate, jobConfig, jobConfigDefaults, JOB_TYPES.SELENIUM_STANDALONE)
                 }
             }
         }
@@ -107,7 +108,7 @@ node() {
                         testPipelineStages << getTestPipelineStageJobForConfig(testPipelineStageTemplate, name, mainFolder)
                     }
                 }
-                dslScripts << getJobForConfig(testPipelineTemplate, testPipelineConfig, JOB_TYPES.PIPELINE).replace(":jobList:", testPipelineStages.join("\n"))
+                dslScripts << getJobForConfig(testPipelineTemplate, testPipelineConfig, jobConfigDefaults, JOB_TYPES.PIPELINE).replace(":jobList:", testPipelineStages.join("\n"))
             }
         }
     }
@@ -150,14 +151,14 @@ enum JOB_TYPES {
 
 
 @NonCPS
-def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
+def getJobForConfig(String jobTemplate, def jobConfig, def jobConfigDefaults, JOB_TYPES jobType) {
 
     def includes = "", excludes = "", trigger = "", browser = ""
 
     switch (jobType) {
         case JOB_TYPES.SELENIUM:
         case JOB_TYPES.SELENIUM_STANDALONE:
-            includes = jobConfig.job.standalone.branches.includes
+            includes = jobConfig.job.standalone.branches.includes ?: jobConfigDefaults.job.standalone.branches.includes
             break;
         case JOB_TYPES.SELENIUM_REGRESSION:
         case JOB_TYPES.SELENIUM_FEATURE:
@@ -199,13 +200,13 @@ def getJobForConfig(String jobTemplate, def jobConfig, JOB_TYPES jobType) {
 }
 
 @NonCPS
-def generatePerformanceJobConfigs(def dslPerformanceTemplate, def jobConfig, JOB_TYPES jobType) {
-    return getJobForConfig(dslPerformanceTemplate, jobConfig, jobType)
+def generatePerformanceJobConfigs(def dslPerformanceTemplate, def jobConfig, def jobConfigDefaults, JOB_TYPES jobType) {
+    return getJobForConfig(dslPerformanceTemplate, jobConfig, jobConfigDefaults, jobType)
 }
 
 @NonCPS
-def generateSeleniumJobConfigs(def dslSeleniumTemplate, def jobConfig, JOB_TYPES jobType) {
-    return getJobForConfig(dslSeleniumTemplate, jobConfig, jobType)
+def generateSeleniumJobConfigs(def dslSeleniumTemplate, def jobConfig, def jobConfigDefaults, JOB_TYPES jobType) {
+    return getJobForConfig(dslSeleniumTemplate, jobConfig, jobConfigDefaults, jobType)
 }
 
 @NonCPS
