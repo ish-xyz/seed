@@ -10,21 +10,21 @@ job:
       includes: '*develop'
       excludes: 'foo'
     enabled: true
-    trigger: 'periodic(120)'
+    trigger: 'periodic(66)'
   feature:
     branches:
       includes: '*'
       excludes: 'master'
     enabled: true
-    trigger: 'periodic(15)'
+    trigger: 'periodic(66)'
   standalone:
     branches:
       includes: 'master'
     enabled: true
-  orphanedOldItemsNumKeep: 3
-  orphanedOldItemsDaysKeep: 1
-  oldItemsNumKeep: 10
-  oldItemsDaysKeep: 10
-  oldArtifactsNumKeep: 10
-  oldArtifactsDaysKeep: 10
+  orphanedOldItemsNumKeep: 6
+  orphanedOldItemsDaysKeep: 6
+  oldItemsNumKeep: 6
+  oldItemsDaysKeep: 6
+  oldArtifactsNumKeep: 6
+  oldArtifactsDaysKeep: 6
   browser: firefox

@@ -158,20 +158,20 @@ def getJobForConfig(String jobTemplate, def jobConfig, def jobConfigDefaults, JO
     switch (jobType) {
         case JOB_TYPES.SELENIUM:
         case JOB_TYPES.SELENIUM_STANDALONE:
-            includes = jobConfig.job.standalone.branches.includes ?: jobConfigDefaults.job.standalone.branches.includes
+            includes = jobConfig?.job?.standalone?.branches?.includes ?: jobConfigDefaults.job.standalone.branches.includes
             break;
         case JOB_TYPES.SELENIUM_REGRESSION:
         case JOB_TYPES.SELENIUM_FEATURE:
-            browser = jobConfig?.job?.browser
-            includes = jobConfig.job.regression.branches.includes
-            excludes = jobConfig.job.regression.branches.excludes
-            trigger = jobConfig.job.regression.trigger
+            browser = jobConfig?.job?.browser ?: jobConfigDefaults?.job?.browser
+            includes = jobConfig?.job?.regression?.branches?.includes ?: jobConfigDefaults.job.regression.branches.includes
+            excludes = jobConfig?.job?.regression?.branches?.excludes ?: jobConfigDefaults.job.regression.branches.excludes
+            trigger = jobConfig?.job?.regression?.trigger ?: jobConfigDefaults.job.regression.trigger
             break;
         case JOB_TYPES.PERFORMANCE_FEATURE:
         case JOB_TYPES.PERFORMANCE_REGRESSION:
-            includes = jobConfig.job.regression.branches.includes
-            excludes = jobConfig.job.regression.branches.excludes
-            trigger = jobConfig.job.regression.trigger
+            includes = jobConfig?.job?.regression?.branches?.includes ?: jobConfigDefaults.job.regression.branches.includes
+            excludes = jobConfig?.job?.regression?.branches?.excludes ?: jobConfigDefaults.job.regression.branches.excludes
+            trigger = jobConfig?.job?.regression?.trigger ?: jobConfigDefaults.job.regression.trigger
             break;
         case JOB_TYPES.PIPELINE:
             break
