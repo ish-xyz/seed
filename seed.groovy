@@ -141,7 +141,8 @@ node() {
 
 //###################### END ############################
 
-public enum JOB_TYPES {
+
+enum JOB_TYPES {
 
 
     SELENIUM("selenium"), PERFORMANCE("performance"), SELENIUM_FEATURE("selenium/feature"), SELENIUM_REGRESSION("selenium/regression"), SELENIUM_STANDALONE("selenium/standalone"), PIPELINE("pipeline"),
@@ -149,9 +150,10 @@ public enum JOB_TYPES {
 
     String folder
     String name
-    String rootFolder = "tests_y"
+    String rootFolder
 
     private JOB_TYPES(String folder) {
+        def rootFolder = config = readYaml(file: "${env.WORKSPACE_LOCAL}/config/conf.yaml")?.mainFolder
         this.folder = "$rootFolder/$folder"
         this.name = folder
     }
