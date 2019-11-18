@@ -179,23 +179,23 @@ def getJobForConfig(String jobTemplate, def jobConfig, def jobConfigDefaults, JO
     }
 
     return jobTemplate.
-            replaceAll(':description:', jobConfig?.job?.description ?: "").
+            replaceAll(':description:', jobConfig?.job?.description ?: jobConfigDefaults.job.description).
             replaceAll(':URL:', jobConfig?.job?.url ?: "").
-            replaceAll(':orphanedOldItemsNumKeep:', jobConfig?.job?.orphanedOldItemsNumKeep as String ?: "").
-            replaceAll(':orphanedOldItemsDaysKeep:', jobConfig?.job?.orphanedOldItemsDaysKeep as String ?: "").
-            replaceAll(':oldItemsNumKeep:', jobConfig?.job?.oldItemsNumKeep as String ?: "").
-            replaceAll(':oldItemsDaysKeep:', jobConfig?.job?.oldItemsDaysKeep as String ?: "").
-            replaceAll(':oldArtifactsNumKeep:', jobConfig?.job?.oldArtifactsNumKeep as String ?: "").
-            replaceAll(':oldArtifactsDaysKeep:', jobConfig?.job?.oldArtifactsDaysKeep as String ?: "").
+            replaceAll(':orphanedOldItemsNumKeep:', jobConfig?.job?.orphanedOldItemsNumKeep as String ?: jobConfigDefaults.job.orphanedOldItemsNumKeep as String).
+            replaceAll(':orphanedOldItemsDaysKeep:', jobConfig?.job?.orphanedOldItemsDaysKeep as String ?: jobConfigDefaults.job.orphanedOldItemsDaysKeep as String).
+            replaceAll(':oldItemsNumKeep:', jobConfig?.job?.oldItemsNumKeep as String ?: jobConfigDefaults.job.oldItemsNumKeep as String).
+            replaceAll(':oldItemsDaysKeep:', jobConfig?.job?.oldItemsDaysKeep as String ?: jobConfigDefaults.job.oldItemsDaysKeep as String).
+            replaceAll(':oldArtifactsNumKeep:', jobConfig?.job?.oldArtifactsNumKeep as String ?: jobConfigDefaults.job.oldArtifactsNumKeep as String).
+            replaceAll(':oldArtifactsDaysKeep:', jobConfig?.job?.oldArtifactsDaysKeep as String ?: jobConfigDefaults.job.oldArtifactsDaysKeep as String).
             replaceAll(':jobName:', jobConfig?.job?.jobName?.toLowerCase() ?: "").
             replaceAll(':folder:', jobType.folder ?: "").
-            replaceAll(':scriptPath:', jobConfig?.job?.scriptPath ?: "").
-            replaceAll(':credentialsId:', jobConfig?.job?.credentialsId ?: "").
-            replaceAll(':includes:', includes ?: "").
-            replaceAll(':excludes:', excludes ?: "").
-            replaceAll(':trigger:', trigger ?: "").
-            replaceAll(':browser:', browser ?: "").
-            replaceAll(':env:', jobConfig?.job?.environment ?: "").
+            replaceAll(':scriptPath:', jobConfig?.job?.scriptPath ?: jobConfigDefaults.job.scriptPath).
+            replaceAll(':credentialsId:', jobConfig?.job?.credentialsId ?: jobConfigDefaults.job.credentialsId).
+            replaceAll(':includes:', includes).
+            replaceAll(':excludes:', excludes).
+            replaceAll(':trigger:', trigger).
+            replaceAll(':browser:', browser).
+            replaceAll(':env:', jobConfig?.job?.environment ?: jobConfigDefaults.job.environment).
             replace("..", ".") //empty replacements clean up
 }
 
