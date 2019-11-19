@@ -1,5 +1,5 @@
 job:
-  url: 'https://zensus-pl.corp.capgemini.com/gitlab/TestTools/ZENSUSTEMPLATE_JMETER.git'
+  url: 'https://github.com/gabrielstar/jmeter_template.git'
   jobName: 'example2'
   description: 'Description of the job'
   type: 'performance'
