@@ -115,6 +115,8 @@ node() {
                         def name
                         if (jobConfig.job.type == 'selenium') {
                             name = "${jobConfig.job.type}/${testPipelineStageConfig.type}/${jobConfig.job.jobName}.${jobConfig.job.browser}.${jobConfig.job.environment}/${testPipelineStageConfig?.branch}"
+                        }else if (jobConfig.job.type == 'cucumber') {
+                            name = "${jobConfig.job.type}/${testPipelineStageConfig.type}/${jobConfig.job.jobName}.${jobConfig.job.environment}/${testPipelineStageConfig?.branch}"
                         } else if (jobConfig.job.type == 'performance') {
                             name = "${jobConfig.job.type}/${testPipelineStageConfig.type}/${jobConfig.job.jobName}.${jobConfig.job.environment}/${testPipelineStageConfig?.branch}"
                         }
