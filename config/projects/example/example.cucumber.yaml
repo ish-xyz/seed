@@ -1,0 +1,13 @@
+job:
+  url: 'https://github.com/gabrielstar/cucumber.git'
+  jobName: 'example'
+  description: 'Description of the job'
+  type: 'cucumber'
+  regression:
+    branches:
+      includes: '*master'
+    enabled: true
+  feature:
+    enabled: true
+  standalone:
+    enabled: true

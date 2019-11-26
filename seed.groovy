@@ -63,6 +63,19 @@ node() {
         writeFile(file: 'folderStructure.groovy', text: folders.join("\n"))
         jobDsl failOnMissingPlugin: true, unstableOnDeprecation: true, targets: 'folderStructure.groovy'
     }
+    stage('Prepare Cucumber Job Configurations') {
+        for (jobConfig in jobConfigs) {
+            if (jobConfig.job.type == JOB_TYPES.CUCUMBER.toString()) {
+                echo "Building ${JOB_TYPES.CUCUMBER} job config for ${jobConfig.job.jobName}"
+                if (jobConfig.job.regression.enabled as boolean) {
+                    dslScripts << generateCucumberJobConfigs(multibranchPipelineTemplate, jobConfig, jobConfigDefaults, JOB_TYPES.CUCUMBER_REGRESSION)
+                }
+                if (jobConfig.job.feature.enabled as boolean) {
+                    dslScripts << generateCucumberJobConfigs(multibranchPipelineTemplate, jobConfig, jobConfigDefaults, JOB_TYPES.CUCUMBER_FEATURE)
+                }
+            }
+        }
+    }
     stage('Prepare Performance Job Configurations') {
         for (jobConfig in jobConfigs) {
             if (jobConfig.job.type == JOB_TYPES.PERFORMANCE.toString()) {
@@ -131,7 +144,7 @@ node() {
 
 enum JOB_TYPES {
 
-    SELENIUM("selenium"), PERFORMANCE("performance"), SELENIUM_FEATURE("selenium/feature"), SELENIUM_REGRESSION("selenium/regression"), SELENIUM_STANDALONE("selenium/standalone"), PIPELINE("pipeline"),
+    CUCUMBER("cucumber"), CUCUMBER_FEATURE("cucumber/feature"), CUCUMBER_REGRESSION("cucumber/regression"), SELENIUM("selenium"), PERFORMANCE("performance"), SELENIUM_FEATURE("selenium/feature"), SELENIUM_REGRESSION("selenium/regression"), SELENIUM_STANDALONE("selenium/standalone"), PIPELINE("pipeline"),
     PERFORMANCE_REGRESSION("performance/regression"), PERFORMANCE_FEATURE("performance/feature")
 
     String folder
@@ -202,6 +215,11 @@ def getJobForConfig(String jobTemplate, def jobConfig, def jobConfigDefaults, JO
 @NonCPS
 def generatePerformanceJobConfigs(def dslPerformanceTemplate, def jobConfig, def jobConfigDefaults, JOB_TYPES jobType) {
     return getJobForConfig(dslPerformanceTemplate, jobConfig, jobConfigDefaults, jobType)
+}
+
+@NonCPS
+def generateCucumberJobConfigs(def dslCucumberTemplate, def jobConfig, def jobConfigDefaults, JOB_TYPES jobType) {
+    return getJobForConfig(dslCucumberTemplate, jobConfig, jobConfigDefaults, jobType)
 }
 
 @NonCPS
