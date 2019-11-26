@@ -3,6 +3,7 @@ job:
   jobName: 'example'
   description: 'Description of the job'
   type: 'cucumber'
+  environment: 'dev1'
   regression:
     branches:
       includes: '*master'

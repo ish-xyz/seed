@@ -11,6 +11,6 @@ chain:
 - downstreamJob: 'example2.performance.dev2.yaml'
   type: 'regression'
   branch: 'develop'
-- downstreamJob: 'example.cucumber.yaml'
+- downstreamJob: 'example.cucumber.dev1.yaml'
   type: 'regression'
   branch: 'master'
