@@ -1,0 +1,16 @@
+job:
+  jobName: 'selenide'
+  environment: 'dev1'
+chain:
+- downstreamJob: 'selenide.selenium.dev1.safari.yaml'
+  type: 'regression'
+  branch: 'develop'
+- downstreamJob: 'example.performance.dev1.yaml'
+  type: 'regression'
+  branch: 'develop'
+- downstreamJob: 'example2.performance.dev2.yaml'
+  type: 'regression'
+  branch: 'develop'
+- downstreamJob: 'example.cucumber.dev1.yaml'
+  type: 'regression'
+  branch: 'master'

@@ -1,0 +1,13 @@
+job:
+  url: 'https://github.com/gabrielstar/selenide-allure1-junit4-parallelJVM-JenkinsPipelines-Grid.git'
+  jobName: 'selenide'
+  description: 'Description of the job'
+  type: 'selenium'
+  environment: 'dev1'
+  regression:
+    enabled: true
+  feature:
+    enabled: true
+  standalone:
+    enabled: true
+  browser: chrome
