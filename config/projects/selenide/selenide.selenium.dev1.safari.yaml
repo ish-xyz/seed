@@ -5,6 +5,8 @@ job:
   type: 'selenium'
   environment: 'dev1'
   regression:
+    branches:
+      includes: '*master'
     enabled: true
   feature:
     enabled: true

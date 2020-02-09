@@ -4,7 +4,7 @@ job:
 chain:
 - downstreamJob: 'selenide.selenium.dev1.safari.yaml'
   type: 'regression'
-  branch: 'develop'
+  branch: 'master'
 - downstreamJob: 'example.performance.dev1.yaml'
   type: 'regression'
   branch: 'develop'
