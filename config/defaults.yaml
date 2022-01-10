@@ -9,12 +9,12 @@ job:
     branches:
       includes: '*develop'
       excludes: 'boo'
-    trigger: 'periodic(66)'
+    trigger: "cron('@daily')"
   feature:
     branches:
       includes: '*'
       excludes: 'master'
-    trigger: 'periodic(66)'
+    trigger: "cron('@daily')"
   standalone:
     branches:
       includes: 'master'
